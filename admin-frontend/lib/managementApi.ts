@@ -154,6 +154,115 @@ export interface CustomerJourney {
   };
 }
 
+/** Nhãn tiếng Việt do backend trả kèm, để giao diện không giữ bản sao bảng danh mục. */
+export interface JobOrderLabels {
+  status: string | null;
+  employer_type: string | null;
+  program: string | null;
+  region_group: string | null;
+  japanese_required: string | null;
+  education_required: string | null;
+  gender_pref: string | null;
+}
+
+/** Điều kiện bắt buộc — dùng để loại ứng viên khi đối chiếu. */
+export interface JobOrderRequirements {
+  japanese_required: string;
+  education_required: string | null;
+  experience_min: number;
+  age_min: number | null;
+  age_max: number | null;
+  gender_pref: string;
+}
+
+/** Thông tin tham khảo — chỉ để hiển thị và xếp hạng, không loại ai. */
+export interface JobOrderReference {
+  salary_min: number | null;
+  salary_max: number | null;
+  allowances: string[];
+  cost_total_vnd: number | null;
+  interview_date: string | null;
+  departure_expected: string | null;
+  highlights: string[];
+}
+
+export interface JobOrder {
+  code: string;
+  title: string;
+  employer_name: string;
+  employer_type: string;
+  program: string;
+  prefecture: string;
+  region_group: string | null;
+  city: string | null;
+  quota: number;
+  hired_count: number;
+  deadline: string;
+  requirements: JobOrderRequirements;
+  reference: JobOrderReference;
+  description: string | null;
+  internal_note: string | null;
+  status: string;
+  published: boolean;
+  labels: JobOrderLabels;
+  visible_publicly?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CatalogOption {
+  code: string;
+  label: string;
+}
+
+export interface PrefectureOption extends CatalogOption {
+  region_group: string;
+}
+
+export interface JobOrderMeta {
+  employer_types: CatalogOption[];
+  programs: CatalogOption[];
+  japanese_levels: CatalogOption[];
+  education_levels: CatalogOption[];
+  gender_prefs: CatalogOption[];
+  statuses: CatalogOption[];
+  transitions: Record<string, string[]>;
+  regions: CatalogOption[];
+  prefectures: PrefectureOption[];
+}
+
+export interface JobOrderEvent {
+  job_order_code: string;
+  action: string;
+  actor_email: string | null;
+  actor_name: string | null;
+  old_status: string | null;
+  new_status: string | null;
+  details: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface JobOrderImportRow {
+  row_number: number;
+  action: "create" | "update" | "error";
+  code: string | null;
+  title: string | null;
+  errors: string[];
+  data: Record<string, unknown>;
+}
+
+export interface JobOrderImportResult {
+  summary: { total: number; create: number; update: number; error: number };
+  missing_columns: string[];
+  rows: JobOrderImportRow[];
+  dry_run: boolean;
+  applied?: {
+    created: number;
+    updated: number;
+    failed: { row_number: number; reason: string }[];
+  };
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${BACKEND_URL}${path}`, {
     ...options,
@@ -170,6 +279,28 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     }
     const payload = await response.json().catch(() => null);
     throw new Error(payload?.detail || "Không thể kết nối hệ thống.");
+  }
+  return response.json();
+}
+
+/**
+ * Gửi biểu mẫu có file. Khác `request` ở chỗ **không** đặt `Content-Type`:
+ * trình duyệt phải tự sinh header multipart kèm chuỗi phân tách, đặt tay vào là
+ * phía máy chủ không tách được file ra khỏi phần dữ liệu.
+ */
+async function requestForm<T>(path: string, body: FormData): Promise<T> {
+  const response = await fetch(`${BACKEND_URL}${path}`, {
+    method: "POST",
+    body,
+    credentials: "include",
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    if (response.status === 401 && typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+    const payload = await response.json().catch(() => null);
+    throw new Error(payload?.detail || "Không thể tải file lên hệ thống.");
   }
   return response.json();
 }
@@ -325,4 +456,68 @@ export const managementApi = {
       method: "PATCH",
       body: JSON.stringify(data),
     }),
+
+  // --- Đơn tuyển dụng ---
+  jobOrders: (filters?: {
+    status?: string;
+    published?: boolean;
+    program?: string;
+    employerType?: string;
+    prefecture?: string;
+    regionGroup?: string;
+    japaneseRequired?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.status) params.set("status", filters.status);
+    if (filters?.published !== undefined) {
+      params.set("published", String(filters.published));
+    }
+    if (filters?.program) params.set("program", filters.program);
+    if (filters?.employerType) params.set("employer_type", filters.employerType);
+    if (filters?.prefecture) params.set("prefecture", filters.prefecture);
+    if (filters?.regionGroup) params.set("region_group", filters.regionGroup);
+    if (filters?.japaneseRequired) {
+      params.set("japanese_required", filters.japaneseRequired);
+    }
+    const query = params.toString();
+    return request<JobOrder[]>(`/job-orders${query ? `?${query}` : ""}`);
+  },
+  jobOrder: (code: string) =>
+    request<JobOrder>(`/job-orders/${encodeURIComponent(code)}`),
+  jobOrderMeta: () => request<JobOrderMeta>("/job-orders/meta"),
+  jobOrderEvents: (code: string) =>
+    request<JobOrderEvent[]>(`/job-orders/${encodeURIComponent(code)}/events`),
+  createJobOrder: (data: Record<string, unknown>) =>
+    request<JobOrder>("/job-orders", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateJobOrder: (code: string, data: Record<string, unknown>) =>
+    request<JobOrder>(`/job-orders/${encodeURIComponent(code)}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  setJobOrderStatus: (code: string, status: string, note?: string) =>
+    request<JobOrder>(`/job-orders/${encodeURIComponent(code)}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status, note: note || null }),
+    }),
+  setJobOrderPublished: (code: string, published: boolean) =>
+    request<JobOrder>(`/job-orders/${encodeURIComponent(code)}/publish`, {
+      method: "PATCH",
+      body: JSON.stringify({ published }),
+    }),
+  deleteJobOrder: (code: string) =>
+    request<void>(`/job-orders/${encodeURIComponent(code)}`, {
+      method: "DELETE",
+    }),
+  importJobOrders: (file: File, dryRun: boolean) => {
+    const body = new FormData();
+    body.append("file", file);
+    return requestForm<JobOrderImportResult>(
+      `/job-orders/import?dry_run=${dryRun}`,
+      body,
+    );
+  },
+  jobOrderTemplateUrl: () => `${BACKEND_URL}/job-orders/import/template`,
 };

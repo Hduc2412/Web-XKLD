@@ -101,6 +101,12 @@ async def init_db() -> None:
         [("application_code", ASCENDING), ("created_at", ASCENDING)]
     )
 
+    # Index cua cac nghiep vu moi do chinh module do khai bao. Import tai cho vi
+    # nhung module ay lay `get_db` tu file nay, khai bao o dau file se tao vong lap.
+    from app.db.indexes import ensure_domain_indexes
+
+    await ensure_domain_indexes(db)
+
     await _create_initial_admin()
 
     print("[DB] MongoDB initialized successfully.")
