@@ -263,6 +263,105 @@ export interface JobOrderImportResult {
   };
 }
 
+// --- Hồ sơ ứng viên ---
+
+/**
+ * Một ô dữ liệu trong hồ sơ. Mỗi giá trị đi kèm nguồn của nó, nên màn hình luôn
+ * nói được "con số này ở đâu ra" thay vì hiện một con số trần.
+ */
+export interface ProfileCell<T = unknown> {
+  value: T;
+  source: "staff" | "user_confirmed" | "cv" | "chat";
+  confidence: number;
+  evidence: string | null;
+}
+
+export interface CandidateProfile {
+  code: string;
+  session_id: string;
+  status: string;
+  version: number;
+  fields: Record<string, ProfileCell>;
+  preferences: Record<string, ProfileCell>;
+  assigned_to: string | null;
+  lead_code: string | null;
+  confirmed_at: string | null;
+  labels: Record<string, string | null>;
+  missing_required: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+// --- Nhật ký giới thiệu ---
+
+export interface CriterionRow {
+  key: string;
+  label: string;
+  requirement_text: string;
+  candidate_text: string;
+  result: "DAT" | "KHONG_DAT" | "CHUA_RO";
+  missing_field: string | null;
+  kind: "cung";
+}
+
+export interface SoftRow {
+  key: string;
+  label: string;
+  requirement_text: string;
+  candidate_text: string;
+  outcome: string;
+  points: number;
+  max_points: number;
+  missing_field: string | null;
+  kind: "mem";
+}
+
+export interface MatchItem {
+  code: string;
+  title: string;
+  employer_name: string;
+  prefecture: string;
+  region_group: string | null;
+  employer_type: string;
+  program: string;
+  deadline: string;
+  eligible: boolean;
+  score: number;
+  rank: number | null;
+  hard_rows: CriterionRow[];
+  soft_rows: SoftRow[];
+  gaps: string[];
+  missing_info: string[];
+  labels: Record<string, string | null>;
+}
+
+/** Bản tóm tắt dùng cho danh sách. Không kéo theo `items`. */
+export interface RecommendationLogSummary {
+  code: string;
+  profile_code: string;
+  profile_version: number;
+  session_id: string | null;
+  assigned_to: string | null;
+  as_of: string;
+  total_considered: number;
+  eligible_count: number;
+  top_codes: string[];
+  trigger: string;
+  actor_email: string | null;
+  engine_version: string;
+  weights_version: string;
+  orders_fingerprint: string;
+  weights_fingerprint: string;
+  created_at: string;
+}
+
+export interface RecommendationLog extends RecommendationLogSummary {
+  pool_query: Record<string, unknown>;
+  missing_info: string[];
+  items: MatchItem[];
+  application_code: string | null;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${BACKEND_URL}${path}`, {
     ...options,
@@ -520,4 +619,56 @@ export const managementApi = {
     );
   },
   jobOrderTemplateUrl: () => `${BACKEND_URL}/job-orders/import/template`,
+
+  // --- Hồ sơ ứng viên ---
+  candidateProfiles: (filters?: {
+    status?: string;
+    assignedTo?: string;
+    leadCode?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.status) params.set("status", filters.status);
+    if (filters?.assignedTo) params.set("assigned_to", filters.assignedTo);
+    if (filters?.leadCode) params.set("lead_code", filters.leadCode);
+    const query = params.toString();
+    return request<CandidateProfile[]>(`/profiles${query ? `?${query}` : ""}`);
+  },
+  candidateProfile: (code: string) =>
+    request<CandidateProfile>(`/profiles/${encodeURIComponent(code)}`),
+  assignCandidateProfile: (code: string, assignedTo: string | null) =>
+    request<CandidateProfile>(`/profiles/${encodeURIComponent(code)}/assignment`, {
+      method: "PATCH",
+      body: JSON.stringify({ assigned_to: assignedTo }),
+    }),
+
+  // --- Nhật ký giới thiệu ---
+  recommendationLogs: (filters?: {
+    profileCode?: string;
+    sessionId?: string;
+    trigger?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => {
+    const params = new URLSearchParams();
+    if (filters?.profileCode) params.set("profile_code", filters.profileCode);
+    if (filters?.sessionId) params.set("session_id", filters.sessionId);
+    if (filters?.trigger) params.set("trigger", filters.trigger);
+    if (filters?.dateFrom) params.set("date_from", filters.dateFrom);
+    if (filters?.dateTo) params.set("date_to", filters.dateTo);
+    const query = params.toString();
+    return request<RecommendationLogSummary[]>(
+      `/recommendation-logs${query ? `?${query}` : ""}`,
+    );
+  },
+  recommendationLog: (code: string) =>
+    request<RecommendationLog>(`/recommendation-logs/${encodeURIComponent(code)}`),
+  latestRecommendationLog: (profileCode: string) =>
+    request<RecommendationLog>(
+      `/recommendation-logs/profile/${encodeURIComponent(profileCode)}/latest`,
+    ),
+  rerunMatching: (profileCode: string) =>
+    request<RecommendationLog>("/recommendation-logs/rerun", {
+      method: "POST",
+      body: JSON.stringify({ profile_code: profileCode }),
+    }),
 };

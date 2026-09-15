@@ -157,6 +157,34 @@ GENDER_LABELS: dict[str, str] = {
     "nu": "Nữ",
 }
 
+# Kết quả đối chiếu một tiêu chí bắt buộc. "Chưa rõ" là trạng thái riêng chứ
+# không gộp vào "không đạt": thiếu thông tin thì hỏi thêm, không loại đơn.
+RESULT_LABELS: dict[str, str] = {
+    "DAT": "ĐẠT",
+    "KHONG_DAT": "KHÔNG ĐẠT",
+    "CHUA_RO": "CHƯA RÕ",
+}
+
+PROFILE_STATUS_LABELS: dict[str, str] = {
+    "extracted": "Đã trích xuất",
+    "confirmed": "Đã xác nhận",
+}
+
+# Nguồn của từng trường trong hồ sơ, xếp theo mức độ đáng tin tăng dần.
+SOURCE_LABELS: dict[str, str] = {
+    "chat": "Hội thoại",
+    "cv": "Từ CV",
+    "user_confirmed": "Ứng viên xác nhận",
+    "staff": "Nhân viên nhập",
+}
+
+SOURCE_PRIORITY: dict[str, int] = {
+    "chat": 1,
+    "cv": 2,
+    "user_confirmed": 3,
+    "staff": 4,
+}
+
 JOB_ORDER_STATUS_LABELS: dict[str, str] = {
     "draft": "Nháp",
     "open": "Đang tuyển",

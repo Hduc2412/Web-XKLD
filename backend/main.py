@@ -11,6 +11,10 @@ from app.api.applications import router as application_router
 from app.api.customer_journey import router as customer_journey_router
 from app.api.job_orders import public_router as public_job_order_router
 from app.api.job_orders import router as job_order_router
+from app.api.matching import public_router as public_match_router
+from app.api.matching import router as recommendation_log_router
+from app.api.profiles import public_router as public_profile_router
+from app.api.profiles import router as profile_router
 from app.db.database import close_db, init_db
 from app.core.config import settings
 
@@ -44,6 +48,10 @@ app.include_router(application_router)
 app.include_router(customer_journey_router)
 app.include_router(public_job_order_router)
 app.include_router(job_order_router)
+app.include_router(public_profile_router)
+app.include_router(profile_router)
+app.include_router(public_match_router)
+app.include_router(recommendation_log_router)
 
 @app.get("/")
 def read_root():

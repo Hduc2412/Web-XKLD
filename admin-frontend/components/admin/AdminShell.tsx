@@ -13,6 +13,7 @@ const navigation = [
   { href: "/admin/leads", label: "Khách hàng", icon: "♙" },
   { href: "/admin/applications", label: "Hồ sơ tuyển dụng", icon: "▤" },
   { href: "/admin/job-orders", label: "Đơn tuyển dụng", icon: "▣" },
+  { href: "/admin/recommendation-logs", label: "Nhật ký giới thiệu", icon: "◈" },
   { href: "/admin/conversations", label: "Hội thoại", icon: "◌" },
   { href: "/admin/knowledge", label: "Tri thức AI", icon: "◇" },
   { href: "/admin/users", label: "Người dùng", icon: "♧" },
