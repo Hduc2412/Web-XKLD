@@ -14,6 +14,7 @@ from app.db.database import (
     list_recruitment_applications,
     update_recruitment_application,
 )
+from app.services import score_service
 from app.services.assignment import (
     can_access,
     ensure_can_assign,
@@ -226,6 +227,17 @@ async def update_application(
             status_code=409,
             detail="Hồ sơ đã thay đổi hoặc không còn được giao cho bạn. Vui lòng tải lại.",
         )
+    # Xuất cảnh là đích của cả chuỗi tư vấn, nên là mốc duy nhất trong vòng đời
+    # hồ sơ có điểm. Các bước giữa chỉ là đi qua, chấm điểm từng bước sẽ thành
+    # thưởng cho việc bấm nút.
+    if fields.get("status") == "departed":
+        await score_service.award(
+            staff_email=existing.get("assigned_to"),
+            action="application.departed",
+            reference_type="recruitment_application",
+            reference_code=application_code,
+        )
+
     changed_fields = sorted(key for key in fields if key != "is_active")
     event_details = {"changed_fields": changed_fields}
     if "status" in fields:

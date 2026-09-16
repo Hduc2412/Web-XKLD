@@ -92,12 +92,12 @@ NGOÀI PHẠM VI ĐỒ ÁN
 | Phân công sở hữu | Chuyển hồ sơ cho người khác (quản lý) và trả về hàng đợi (chính người phụ trách), đều bắt ghi lý do và lưu vào lịch sử hồ sơ |
 | Thông báo dùng chung | Thông báo không còn gắn riêng vào lịch hẹn; đăng ký mới, chuyển tay và trả việc đều sinh thông báo tắt được |
 | Kênh khách hàng | Trang đối chiếu hồ sơ cho phép gửi CV, xem đơn phù hợp kèm lý do, và tự chọn đơn để đăng ký — không cần tài khoản |
+| Điểm hiệu suất nhân viên | Sổ điểm ghi theo từng sự kiện có thật, kèm mã hồ sơ và thời điểm; quản lý điều chỉnh tay phải ghi lý do và cũng thành một dòng trong sổ. Luật tính điểm hiện ngay cạnh bảng điểm |
 
 ### 2.2. Đang thiếu — chính là phần trọng tâm còn lại
 
 | Phần | Trạng thái |
 |---|---|
-| **Điểm nhân viên** | Chưa có — cần lưu theo sự kiện, không chỉ một số tổng |
 | Màn hình vòng đời hồ sơ | Backend đã đủ trạng thái và lịch sử; giao diện mới hiện thao tác bàn giao, chưa hiện dòng thời gian chuyển trạng thái |
 | Đọc chữ trong ảnh và bản scan | Chưa có — ảnh chụp và bản scan **được nhận và lưu giữ** nhưng chưa rút được chữ; nhân viên mở file đọc rồi nhập tay. Giữ lại như vậy là có chủ ý: để đếm xem có bao nhiêu ứng viên thật sự gửi ảnh, rồi mới quyết định có làm phần đọc ảnh hay không |
 | Hồ sơ ứng viên tập trung | Đã có màn hình hồ sơ kèm tài liệu gốc; chưa gom hội thoại và đề xuất về cùng một chỗ |
@@ -123,8 +123,12 @@ Phần còn lại không nằm trên chuỗi này nữa. Đó là phần **vận
 lớn: hồ sơ có vòng trạng thái, có đúng một người phụ trách tại một thời điểm, chuyển tay
 và trả về hàng đợi đều để lại lý do trong lịch sử.
 
-Còn thiếu duy nhất phần **đo hiệu suất nhân viên** — ghi điểm theo từng sự kiện thay vì
-giữ một con số tổng không giải thích được.
+Bảy bước đầu đã xong. Phần đo hiệu suất nhân viên ghi điểm theo từng sự kiện có thật,
+mỗi điểm trỏ về một việc đã làm kèm mã hồ sơ và thời điểm — không có chỗ nào chứa một con
+số tổng sửa trực tiếp được.
+
+Còn lại là **bước 8**: chốt bố cục và UI/UX cho kênh khách hàng, rồi mới đo kiểm tổng thể.
+Đo trước khi chốt giao diện thì đo xong lại phải đo lại.
 
 ---
 
@@ -140,8 +144,8 @@ Thứ tự này **không đảo được**, vì mỗi bước là đầu vào c�
 | 4 | Đối chiếu điều kiện và giải thích đơn phù hợp | Kết quả xác định, có thể kiểm tra lại | Xong |
 | 5 | Tạo đăng ký sơ bộ, phiếu tóm tắt và hàng đợi nhân viên | Nhân viên nhận đủ bối cảnh mà không nhập lại | Xong |
 | 6 | Áp dụng vòng đời trạng thái và phân công sở hữu | Một hồ sơ có một người phụ trách tại một thời điểm | Xong |
-| 7 | Bổ sung quản lý nhân viên và điểm theo sự kiện | Quản lý theo dõi được hiệu suất và lịch sử điều chỉnh | **Đang tới lượt** |
-| 8 | Thiết kế kênh khách hàng rồi kiểm thử tổng thể | Chỉ đo kiểm sau khi chuỗi nghiệp vụ đã chạy đủ | Chưa |
+| 7 | Bổ sung quản lý nhân viên và điểm theo sự kiện | Quản lý theo dõi được hiệu suất và lịch sử điều chỉnh | Xong |
+| 8 | Thiết kế kênh khách hàng rồi kiểm thử tổng thể | Chỉ đo kiểm sau khi chuỗi nghiệp vụ đã chạy đủ | **Đang tới lượt** |
 
 ---
 

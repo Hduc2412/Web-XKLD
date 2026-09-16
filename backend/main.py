@@ -19,6 +19,7 @@ from app.api.profiles import public_router as public_profile_router
 from app.api.profiles import router as profile_router
 from app.api.registrations import public_router as public_registration_router
 from app.api.registrations import router as registration_router
+from app.api.staff_scores import router as staff_score_router
 from app.db.database import close_db, init_db
 from app.core.config import settings
 
@@ -60,6 +61,7 @@ app.include_router(public_document_router)
 app.include_router(document_router)
 app.include_router(public_registration_router)
 app.include_router(registration_router)
+app.include_router(staff_score_router)
 
 @app.get("/")
 def read_root():

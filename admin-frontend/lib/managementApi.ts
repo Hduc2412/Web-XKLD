@@ -338,6 +338,47 @@ export interface ConsultationReport {
   created_at: string;
 }
 
+export interface ScoreRule {
+  action: string;
+  points: number;
+  label: string;
+}
+
+export interface ScoreTotal {
+  staff_email: string;
+  points: number;
+  events: number;
+  last_at: string;
+}
+
+export interface ScoreEvent {
+  code: string;
+  staff_email: string;
+  action: string;
+  label: string;
+  points: number;
+  reference_type: string;
+  reference_code: string | null;
+  source: "auto" | "manual";
+  note: string | null;
+  created_by: string | null;
+  occurred_at: string;
+}
+
+export interface ScoreBreakdown {
+  action: string;
+  label: string;
+  points: number;
+  events: number;
+}
+
+export interface StaffLedger {
+  staff_email: string;
+  points: number;
+  events: ScoreEvent[];
+  breakdown: ScoreBreakdown[];
+}
+
 // --- Nhật ký giới thiệu ---
 
 export interface CriterionRow {
@@ -744,6 +785,31 @@ export const managementApi = {
       `/registrations/${encodeURIComponent(code)}/release`,
       { method: "POST", body: JSON.stringify({ note }) },
     ),
+
+  // --- Điểm hiệu suất nhân viên ---
+  scoreboard: (range?: { dateFrom?: string; dateTo?: string }) => {
+    const params = new URLSearchParams();
+    if (range?.dateFrom) params.set("date_from", range.dateFrom);
+    if (range?.dateTo) params.set("date_to", range.dateTo);
+    const query = params.toString();
+    return request<{ items: ScoreTotal[]; rules: ScoreRule[] }>(
+      `/staff-scores${query ? `?${query}` : ""}`,
+    );
+  },
+  staffLedger: (email: string, range?: { dateFrom?: string; dateTo?: string }) => {
+    const params = new URLSearchParams();
+    if (range?.dateFrom) params.set("date_from", range.dateFrom);
+    if (range?.dateTo) params.set("date_to", range.dateTo);
+    const query = params.toString();
+    return request<StaffLedger>(
+      `/staff-scores/${encodeURIComponent(email)}${query ? `?${query}` : ""}`,
+    );
+  },
+  adjustScore: (email: string, points: number, note: string) =>
+    request<ScoreEvent>(`/staff-scores/${encodeURIComponent(email)}/adjust`, {
+      method: "POST",
+      body: JSON.stringify({ points, note }),
+    }),
 
   // --- Nhật ký giới thiệu ---
   recommendationLogs: (filters?: {

@@ -21,6 +21,7 @@ from app.db.database import (
     reschedule_appointment,
     update_appointment_status,
 )
+from app.services import score_service
 from app.services.assignment import can_access
 from app.services.audit_service import audit_action
 from app.auth.security import get_current_user, require_roles
@@ -178,6 +179,15 @@ async def change_appointment_status(
             status_code=409,
             detail="Lịch không tồn tại hoặc không thể chuyển sang trạng thái này.",
         )
+    # Ghi điểm cho người thật sự gọi. Lấy theo `assigned_to` của lịch chứ không
+    # theo người đang đăng nhập: quản lý ghi hộ kết quả thì điểm vẫn phải thuộc
+    # về tư vấn viên đã bỏ công gọi.
+    await score_service.award_appointment_result(
+        staff_email=appointment.get("assigned_to"),
+        appointment_code=appointment_code,
+        status=request.status,
+        note=request.result_note,
+    )
     await audit_action(
         http_request, "appointment.status_changed", actor=current_user,
         target_type="appointment", target_id=appointment_code,

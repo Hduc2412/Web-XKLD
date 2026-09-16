@@ -12,6 +12,7 @@ from app.db import (
     candidate_documents,
     candidate_profiles,
     consultation_reports,
+    employee_scores,
     job_orders,
     recommendation_logs,
 )
@@ -23,6 +24,7 @@ _MODULES = (
     candidate_profiles,
     candidate_documents,
     consultation_reports,
+    employee_scores,
     recommendation_logs,
 )
 

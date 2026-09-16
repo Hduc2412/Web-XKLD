@@ -33,7 +33,7 @@ from app.db.database import (
     list_unassigned_registrations,
     update_recruitment_application,
 )
-from app.services import registration_service
+from app.services import registration_service, score_service
 from app.services.assignment import (
     can_access,
     ensure_can_assign,
@@ -175,6 +175,11 @@ async def accept(
         )
 
     await _log(application_code, "accepted", current_user, {})
+    await score_service.award_pickup(
+        staff_email=current_user["email"],
+        application_code=application_code,
+        registered_at=existing.get("created_at"),
+    )
     await audit_action(
         http_request,
         "application.accepted",
@@ -292,6 +297,15 @@ async def release(
 
     details = {"from": previous, "note": payload.note}
     await _log(application_code, "released", current_user, details)
+    # Không điểm, nhưng vẫn vào sổ: quản lý cần thấy ai trả việc và vì sao. Xem
+    # lý do không trừ điểm ở `services/scoring.py`.
+    await score_service.award(
+        staff_email=previous,
+        action="application.released",
+        reference_type="recruitment_application",
+        reference_code=application_code,
+        note=payload.note,
+    )
     await create_notification(
         notification_type="application_released",
         title="Một hồ sơ được trả về hàng đợi",
