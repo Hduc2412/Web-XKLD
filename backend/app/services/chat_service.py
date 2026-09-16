@@ -62,7 +62,9 @@ async def process_message(user_query: str, session_id: str) -> dict:
     answer = await run_in_threadpool(generate_response, prompt)
 
     # 5. Validate câu trả lời
-    is_valid, answer = validate(answer, intent)
+    # Truyền câu của khách vào để bộ kiểm biết số nào là số khách vừa nhắn: bot
+    # được nhắc lại số đó, còn số nào không có trong câu của khách thì chặn.
+    is_valid, answer = validate(answer, intent, user_message=user_query)
 
     # Câu trả lời bị chặn thì không được kèm nguồn: nói "chưa có thông tin"
     # mà vẫn hiện link tham khảo là tự mâu thuẫn trên màn hình người dùng.
