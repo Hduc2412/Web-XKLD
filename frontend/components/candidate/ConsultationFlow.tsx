@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import CvUpload from "@/components/candidate/CvUpload";
 import MatchCard from "@/components/candidate/MatchCard";
 import {
   NumberField,
@@ -17,11 +18,15 @@ import {
   ProfileFormValues,
   ProfileMeta,
   confirmProfile,
+  MyRegistration,
+  RegistrationResult,
   createProfile,
   fetchMatches,
+  fetchMyRegistrations,
   fetchProfile,
   fetchProfileMeta,
   getSessionId,
+  registerForOrder,
   resetSession,
   updateProfile,
   valueOf,
@@ -96,6 +101,9 @@ export default function ConsultationFlow() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [registrations, setRegistrations] = useState<MyRegistration[]>([]);
+  const [justRegistered, setJustRegistered] = useState<RegistrationResult | null>(null);
+  const [registering, setRegistering] = useState<string | null>(null);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((current) => ({ ...current, [key]: value }));
@@ -107,12 +115,16 @@ export default function ConsultationFlow() {
     (async () => {
       const sessionId = getSessionId();
       try {
-        const [catalog, existing] = await Promise.all([
+        const [catalog, existing, mine] = await Promise.all([
           fetchProfileMeta(),
           fetchProfile(sessionId),
+          // Đơn đã đăng ký từ lần trước. Không có thì trả mảng rỗng chứ không
+          // làm hỏng cả trang — phần lớn người vào lần đầu chưa đăng ký gì.
+          fetchMyRegistrations(sessionId).catch(() => ({ items: [] })),
         ]);
         if (!alive) return;
         setMeta(catalog);
+        setRegistrations(mine.items);
         if (existing) {
           setProfile(existing);
           setForm(fromProfile(existing));
@@ -133,6 +145,35 @@ export default function ConsultationFlow() {
       alive = false;
     };
   }, []);
+
+  const register = useCallback(async (jobOrderCode: string) => {
+    setRegistering(jobOrderCode);
+    setError("");
+    try {
+      const created = await registerForOrder(getSessionId(), jobOrderCode);
+      setJustRegistered(created);
+      const mine = await fetchMyRegistrations(getSessionId());
+      setRegistrations(mine.items);
+    } catch (reason) {
+      setError(
+        reason instanceof ApiError
+          ? reason.message
+          : "Chưa gửi được đăng ký, bạn thử lại giúp em.",
+      );
+    } finally {
+      setRegistering(null);
+    }
+  }, []);
+
+  const registeredCodes = useMemo(
+    () => new Set(registrations.map((row) => row.job_order_code)),
+    [registrations],
+  );
+
+  // Đang có hồ sơ chờ nhân viên xử lý thì không mở đăng ký đơn thứ hai. Phía máy
+  // chủ cũng chặn, nhưng để nút sáng rồi mới báo lỗi là bắt người dùng bấm vào
+  // một thứ chắc chắn hỏng.
+  const hasOpenRegistration = registrations.length > 0;
 
   const validate = useCallback((): boolean => {
     const found: Record<string, string> = {};
@@ -280,6 +321,35 @@ export default function ConsultationFlow() {
           </div>
         </Card>
 
+        {justRegistered && (
+          <Card className="border-emerald-200 bg-emerald-50 p-5">
+            <p className="text-sm font-medium text-emerald-900">
+              Đã gửi đăng ký đơn {justRegistered.job_order_code}
+              {justRegistered.job_order_title
+                ? ` — ${justRegistered.job_order_title}`
+                : ""}
+            </p>
+            <p className="mt-1.5 text-sm leading-6 text-emerald-800">
+              {justRegistered.message}
+            </p>
+            <p className="mt-2 text-xs text-emerald-700">
+              Mã hồ sơ của bạn: {justRegistered.application_code}. Bạn ghi lại để
+              tiện đối chiếu khi nhân viên gọi.
+            </p>
+          </Card>
+        )}
+
+        {!justRegistered && hasOpenRegistration && (
+          <Card className="border-sky-200 bg-sky-50 p-5">
+            <p className="text-sm text-sky-900">
+              Bạn đang có hồ sơ đăng ký đơn{" "}
+              <span className="font-medium">{registrations[0].job_order_code}</span>{" "}
+              chờ nhân viên liên hệ. Muốn đổi sang đơn khác thì nói với nhân viên
+              khi họ gọi lại nhé.
+            </p>
+          </Card>
+        )}
+
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-xl font-semibold text-ink-900">
             {result.eligible_count > 0
@@ -328,7 +398,14 @@ export default function ConsultationFlow() {
         ) : (
           <div className="space-y-4">
             {result.matches.map((item) => (
-              <MatchCard key={item.code} item={item} />
+              <MatchCard
+                key={item.code}
+                item={item}
+                onRegister={register}
+                registering={registering === item.code}
+                registered={registeredCodes.has(item.code)}
+                disabled={hasOpenRegistration}
+              />
             ))}
           </div>
         )}
@@ -353,6 +430,16 @@ export default function ConsultationFlow() {
           {error}
         </p>
       )}
+
+      <div className="mt-6">
+        <CvUpload
+          sessionId={getSessionId()}
+          onProfileRead={(read) => {
+            setProfile(read);
+            setForm(fromProfile(read));
+          }}
+        />
+      </div>
 
       <div className="mt-6">
         <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">

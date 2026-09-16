@@ -125,6 +125,50 @@ export interface PreferenceFormValues {
  * Lỗi có thông điệp đọc được. Backend trả `detail` là chuỗi, hoặc là đối tượng
  * khi cần kèm danh sách trường còn thiếu, nên gom cả hai về một chỗ.
  */
+export interface CandidateDocument {
+  code: string;
+  filename: string;
+  content_type: string;
+  size_bytes: number;
+  status: "received" | "extracted" | "unreadable" | "failed";
+  profile_code: string | null;
+  extracted_fields: string[];
+  /** Trường máy đọc ra nhưng không dám nhận, kèm lý do. */
+  rejected: Record<string, string>;
+  created_at: string;
+}
+
+export interface UploadResult {
+  message: string;
+  document: CandidateDocument;
+  profile: CandidateProfile | null;
+  accepted_fields: string[];
+  rejected: Record<string, string>;
+}
+
+export interface DocumentListing {
+  items: CandidateDocument[];
+  max_per_session: number;
+  accepted_types: string;
+  max_upload_mb: number;
+}
+
+export interface RegistrationResult {
+  message: string;
+  application_code: string;
+  job_order_code: string;
+  job_order_title: string | null;
+  status: string;
+}
+
+export interface MyRegistration {
+  application_code: string;
+  job_order_code: string;
+  job_order_title: string | null;
+  status: string;
+  created_at: string;
+}
+
 export class ApiError extends Error {
   status: number;
   missing: string[];
@@ -267,6 +311,80 @@ export function fetchMatches(
   const query = params.toString();
   return request<MatchResult>(
     `/public/matches/${encodeURIComponent(sessionId)}${query ? `?${query}` : ""}`,
+  );
+}
+
+
+/**
+ * Gửi một file hồ sơ.
+ *
+ * Không đặt `Content-Type`: trình duyệt phải tự sinh header multipart kèm chuỗi
+ * phân tách, đặt tay vào là phía máy chủ không tách được file ra khỏi dữ liệu.
+ * Vì vậy không dùng lại `request` ở trên — hàm đó luôn gắn `application/json`.
+ */
+export async function uploadDocument(
+  sessionId: string,
+  file: File,
+): Promise<UploadResult> {
+  const body = new FormData();
+  body.append("file", file);
+
+  let response: Response;
+  try {
+    response = await fetch(
+      `${BACKEND_PUBLIC_URL}/public/documents/${encodeURIComponent(sessionId)}`,
+      { method: "POST", body },
+    );
+  } catch {
+    throw new ApiError(
+      0,
+      "Không gửi được file. Bạn kiểm tra lại mạng rồi thử lần nữa nhé.",
+    );
+  }
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      typeof payload?.detail === "string"
+        ? payload.detail
+        : "Không nhận được file này.",
+    );
+  }
+  return payload as UploadResult;
+}
+
+export function fetchDocuments(sessionId: string): Promise<DocumentListing> {
+  return request<DocumentListing>(
+    `/public/documents/${encodeURIComponent(sessionId)}`,
+  );
+}
+
+/**
+ * Đăng ký một đơn.
+ *
+ * `confirmed` luôn là `true` ở đây, nhưng vẫn phải gửi lên: phía máy chủ từ chối
+ * khi thiếu nó. Giao diện bắt ứng viên bấm xác nhận một lần nữa trước khi gọi
+ * hàm này — chọn đơn là quyết định của người, không phải suy đoán của máy.
+ */
+export function registerForOrder(
+  sessionId: string,
+  jobOrderCode: string,
+): Promise<RegistrationResult> {
+  return request<RegistrationResult>(
+    `/public/registrations/${encodeURIComponent(sessionId)}`,
+    {
+      method: "POST",
+      body: JSON.stringify({ job_order_code: jobOrderCode, confirmed: true }),
+    },
+  );
+}
+
+export function fetchMyRegistrations(
+  sessionId: string,
+): Promise<{ items: MyRegistration[] }> {
+  return request<{ items: MyRegistration[] }>(
+    `/public/registrations/${encodeURIComponent(sessionId)}`,
   );
 }
 
