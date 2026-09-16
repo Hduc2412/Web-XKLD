@@ -5,13 +5,13 @@
 ```mermaid
 flowchart TD
     subgraph Client
-        W["Website ứng viên<br/>Next.js :3000"]
-        A["Admin Dashboard<br/>Next.js :3001"]
+        W["Website ứng viên<br/>Next.js :3100"]
+        A["Admin Dashboard<br/>Next.js :3101"]
     end
 
     NG["Nginx<br/>reverse proxy :80"]
 
-    subgraph Backend["FastAPI :8000"]
+    subgraph Backend["FastAPI :8020"]
         R["Router layer"]
         S["Service layer"]
         E["Engine layer"]
@@ -190,9 +190,9 @@ Nginx định tuyến:
 
 | Path | Đích |
 |---|---|
-| `/` | `frontend:3000` |
-| `/admin` | `admin-frontend:3001` |
-| `/api` | `backend:8000` |
+| `/` | `frontend:3100` |
+| `/admin` | `admin-frontend:3101` |
+| `/api` | `backend:8020` |
 | `/api/v1/documents/upload`, `/api/v1/knowledge/upload` | backend, `client_max_body_size 10M` |
 
 Dev dùng `docker-compose.yml` (mount code, hot reload).
@@ -229,7 +229,7 @@ STORAGE_PATH=/app/storage
 MAX_UPLOAD_MB=10
 
 # App
-CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+CORS_ORIGINS=http://localhost:3100,http://localhost:3101
 LOG_LEVEL=INFO
 ```
 

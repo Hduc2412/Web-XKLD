@@ -248,15 +248,32 @@ hình ở trạng thái rỗng có thông báo, không chặn gì cả.
 
 ## 7. Hai việc cần thống nhất
 
-### 7.1. Cổng backend đang lệch
+### 7.1. Cổng backend — đã thống nhất, bộ cổng chung là 8020 / 3100 / 3101
 
-Bạn đổi `NEXT_PUBLIC_BACKEND_URL` mặc định trong `admin-frontend/lib/managementApi.ts`
-sang cổng 8010. Thay đổi đó chưa commit, nên bản đẩy lên GitHub vẫn để 8000.
+Bạn đã chuyển sang bộ cổng này và tôi làm nốt những chỗ còn sót. Chốt lại:
 
-Ai chạy backend ở cổng nào thì màn hình quản trị phải trỏ đúng cổng đó, nếu không toàn
-bộ màn hình sẽ trắng dữ liệu mà không báo lỗi rõ ràng. Nên chốt một con số, hoặc tốt
-hơn là mỗi người dùng file `.env.local` riêng và để giá trị mặc định trong mã nguồn
-yên ở 8000.
+| Dịch vụ | Cổng |
+|---|---:|
+| Backend FastAPI | **8020** |
+| Website khách hàng | **3100** |
+| Hệ thống quản trị | **3101** |
+
+Hai phần dùng **chung một backend một cổng**, vì sau này vốn sẽ nhúng vào nhau.
+
+Có bốn chỗ trước đây còn để 8000/3000/3001 và đã sửa. Một trong số đó là lỗi chạy
+thật, đáng để bạn biết vì nó rất dễ chẩn đoán nhầm: `frontend/lib/publicApi.ts` vẫn
+trỏ 8000 trong khi `frontend/lib/api.ts` đã là 8020. Hậu quả là **khung chat chạy
+bình thường còn trang đơn hàng thì không có dữ liệu** — dễ tưởng là lỗi của phần
+nghiệp vụ, thực ra chỉ là sai cổng. Ngoài ra script `start` của cả hai app vẫn rơi
+về 3000/3001, nên `npm run build && npm run start` chạy khác `npm run dev`.
+
+Cổng backend giờ đọc từ `API_PORT` trong `backend/.env` (mặc định 8020), nên
+`python main.py` là đủ. Lệnh cũ `python -m uvicorn main:app --reload --port 8020`
+vẫn dùng được và vẫn thắng giá trị trong `.env`.
+
+Cổng của hai app Next đặt bằng `-p` trong `package.json`. Đừng viết `PORT` vào
+`.env.local` — Next chọn cổng trước khi nạp file `.env` nên nó bị bỏ qua. Muốn đổi
+tạm thì `npm run dev -- -p 4000`.
 
 ### 7.2. Chất lượng kho tri thức
 

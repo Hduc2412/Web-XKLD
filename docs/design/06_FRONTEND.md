@@ -4,8 +4,8 @@ Hai ứng dụng Next.js 14 độc lập, dùng chung ngôn ngữ thiết kế:
 
 | App | Port dev | Người dùng | Xác thực |
 |---|---|---|---|
-| `frontend/` | 3000 | Ứng viên | Không |
-| `admin-frontend/` | 3001 | Nhân viên nội bộ | JWT, middleware chặn route |
+| `frontend/` | 3100 | Ứng viên | Không |
+| `admin-frontend/` | 3101 | Nhân viên nội bộ | JWT, middleware chặn route |
 
 Stack: Next.js 14 App Router, TypeScript, Tailwind CSS, Lucide Icons, Axios,
 Recharts (biểu đồ), `react-markdown` (render trả lời AI).

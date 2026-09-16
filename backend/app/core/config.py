@@ -72,9 +72,15 @@ class Settings(BaseSettings):
     score_rules_path: Path | None = None
 
     # --- Web ---
+    # Cổng 8020 thay vì 8000 mặc định của uvicorn, để không đụng ứng dụng khác
+    # trên máy phát triển. Đổi số ở đây thì phải đổi kèm NEXT_PUBLIC_BACKEND_URL
+    # của cả hai frontend, nếu không trình duyệt vẫn gọi vào cổng cũ.
+    api_host: str = "127.0.0.1"
+    api_port: int = 8020
+
     cors_origins: Annotated[tuple[str, ...], NoDecode] = (
-        "http://localhost:3000",
-        "http://localhost:3001",
+        "http://localhost:3100",
+        "http://localhost:3101",
     )
 
     @field_validator("cors_origins", mode="before")

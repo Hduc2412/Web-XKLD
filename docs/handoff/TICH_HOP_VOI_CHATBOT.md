@@ -232,22 +232,30 @@ cd backend
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python -m uvicorn main:app --reload        # http://localhost:8000
+python main.py                             # http://localhost:8020
 
 # 4. Nạp đơn tuyển dụng mẫu
 python -m scripts.seed_job_orders --reset  # 19 đơn, 16 đơn công khai
 
 # 5. Website khách hàng
-cd frontend && npm ci && npm run dev       # http://localhost:3000
+cd frontend && npm ci && npm run dev       # http://localhost:3100
 
 # 6. Hệ thống quản trị
-cd admin-frontend && npm ci && npm run dev # http://localhost:3001
+cd admin-frontend && npm ci && npm run dev # http://localhost:3101
 ```
 
-**Lưu ý về cổng.** Hai ứng dụng web đọc địa chỉ backend từ
-`NEXT_PUBLIC_BACKEND_URL`. Nếu chạy backend ở cổng khác 8000 thì phải sửa cả hai
-file `.env.local`, nếu không màn hình quản trị sẽ không gọi được dữ liệu. Đây là
-lỗi hay gặp nhất khi hai người cùng chạy dự án trên hai máy.
+**Lưu ý về cổng.** Dự án dùng bộ cổng riêng để không đụng ứng dụng khác trên
+máy: backend `8020`, website `3100`, hệ thống quản trị `3101`. Cổng backend đọc từ
+`API_PORT` trong `backend/.env`, nên `python main.py` là đủ, không cần nhớ tham số
+dòng lệnh.
+
+Hai ứng dụng web đọc địa chỉ backend từ `NEXT_PUBLIC_BACKEND_URL`. Đổi cổng backend
+mà quên sửa hai file `.env.local` thì màn hình sẽ trắng dữ liệu mà không báo lỗi gì
+rõ ràng — đây là lỗi hay gặp nhất khi hai người cùng chạy dự án trên hai máy.
+
+Cổng của hai app Next đặt bằng `-p` trong `package.json`. Muốn đổi tạm thì chạy
+`npm run dev -- -p 4000`; viết `PORT` vào `.env.local` không có tác dụng vì Next
+chọn cổng trước khi nạp file `.env`.
 
 **Kiểm thử.**
 

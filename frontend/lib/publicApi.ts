@@ -10,7 +10,7 @@
  */
 
 export const BACKEND_PUBLIC_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8020";
 
 const BACKEND_INTERNAL_URL =
   process.env.BACKEND_INTERNAL_URL || BACKEND_PUBLIC_URL;
