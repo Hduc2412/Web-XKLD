@@ -79,7 +79,14 @@ async def upload_document(
     return {
         "message": result.message,
         "document": result.document,
-        "profile": profiles.public_view(result.profile) if result.profile else None,
+        # Phai qua decorate nhu moi endpoint ho so khac. Tra thieu `labels` o day
+        # tung lam trang tu van trang xoa: giao dien doc profile.labels ngay sau khi
+        # gui CV, va cung mot tai nguyen tra ve hai hinh dang la loi cua API.
+        "profile": (
+            profiles.decorate(profiles.public_view(result.profile))
+            if result.profile
+            else None
+        ),
         "accepted_fields": result.accepted_fields,
         # Trả cả phần bị loại kèm lý do. Nhân viên nhìn vào là biết máy đã đọc ra
         # một giá trị nhưng không dám nhận, thay vì tưởng CV không có thông tin đó.

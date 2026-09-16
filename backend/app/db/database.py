@@ -51,7 +51,12 @@ async def init_db() -> None:
     global _client, _db
 
     if _client is None:
-        _client = AsyncIOMotorClient(settings.mongodb_uri)
+        # tz_aware=True: MongoDB luu datetime theo UTC, nhung driver mac dinh tra
+        # ve datetime tran khong mang mui gio. FastAPI se serialise no thanh chuoi
+        # kieu "2026-09-16T14:40:12" khong co hau to Z, va trinh duyet doc chuoi do
+        # nhu GIO DIA PHUONG. Hau qua: mot ho so vua dang ky xong hien la "7 gio
+        # truoc" tren man hinh quan tri, dung bang do lech mui gio Viet Nam.
+        _client = AsyncIOMotorClient(settings.mongodb_uri, tz_aware=True)
         _db = _client[settings.mongodb_db_name]
 
     db = get_db()

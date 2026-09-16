@@ -261,7 +261,10 @@ export default function ConsultationFlow() {
 
   const summary = useMemo(() => {
     if (!profile) return [];
-    const labels = profile.labels;
+    // Không giả định `labels` luôn có. Một bảng tóm tắt thiếu vài dòng thì vẫn
+    // đọc được; còn để nó ném lỗi thì cả trang tư vấn trắng xoá và ứng viên mất
+    // sạch thứ vừa khai. Đã xảy ra thật khi endpoint gửi CV trả hồ sơ chưa gắn nhãn.
+    const labels = profile.labels ?? {};
     const items = [
       ["Họ tên", valueOf<string>(profile.fields, "full_name")],
       ["Năm sinh", valueOf<number>(profile.fields, "birth_year")],
