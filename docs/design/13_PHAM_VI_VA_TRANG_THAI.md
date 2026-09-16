@@ -21,7 +21,7 @@ CÁC TÍNH NĂNG BẮT BUỘC
 │   ├── Hiểu câu hỏi nối tiếp trong cùng cuộc trò chuyện
 │   └── Từ chối trả lời khi không đủ căn cứ, mời gặp nhân viên
 ├── Đọc hồ sơ ứng viên
-│   ├── Nhận file CV ngay trong khung chat
+│   ├── Nhận file CV trong kênh khách hàng
 │   ├── Rút ra thông tin năng lực và nguyện vọng
 │   └── Cho ứng viên xác nhận lại trước khi dùng
 ├── Giới thiệu đơn hàng
@@ -91,6 +91,7 @@ NGOÀI PHẠM VI ĐỒ ÁN
 | Hàng đợi hồ sơ | Hồ sơ chưa ai nhận hiện cho mọi nhân viên; nhận việc có khóa chống hai người cùng nhận |
 | Phân công sở hữu | Chuyển hồ sơ cho người khác (quản lý) và trả về hàng đợi (chính người phụ trách), đều bắt ghi lý do và lưu vào lịch sử hồ sơ |
 | Thông báo dùng chung | Thông báo không còn gắn riêng vào lịch hẹn; đăng ký mới, chuyển tay và trả việc đều sinh thông báo tắt được |
+| Kênh khách hàng | Trang đối chiếu hồ sơ cho phép gửi CV, xem đơn phù hợp kèm lý do, và tự chọn đơn để đăng ký — không cần tài khoản |
 
 ### 2.2. Đang thiếu — chính là phần trọng tâm còn lại
 
@@ -100,7 +101,8 @@ NGOÀI PHẠM VI ĐỒ ÁN
 | Màn hình vòng đời hồ sơ | Backend đã đủ trạng thái và lịch sử; giao diện mới hiện thao tác bàn giao, chưa hiện dòng thời gian chuyển trạng thái |
 | Đọc chữ trong ảnh và bản scan | Chưa có — ảnh chụp và bản scan **được nhận và lưu giữ** nhưng chưa rút được chữ; nhân viên mở file đọc rồi nhập tay. Giữ lại như vậy là có chủ ý: để đếm xem có bao nhiêu ứng viên thật sự gửi ảnh, rồi mới quyết định có làm phần đọc ảnh hay không |
 | Hồ sơ ứng viên tập trung | Đã có màn hình hồ sơ kèm tài liệu gốc; chưa gom hội thoại và đề xuất về cùng một chỗ |
-| Kênh khách hàng / UI | Mới có chatbot và các trang giới thiệu; vị trí gửi CV và UI/UX **chưa được thống nhất** |
+| Đặt lịch hẹn trên trang | Chưa có — trang đối chiếu vẫn đẩy ứng viên sang khung chat để đặt lịch |
+| Kênh khách hàng / UI | Luồng nghiệp vụ đã chạy đủ trên trang đối chiếu hồ sơ; **bố cục và UI/UX tổng thể vẫn chưa chốt**, kể cả vị trí đặt khung chat |
 | Triển khai chạy thật | Đang chạy trên máy cá nhân, chưa đưa lên môi trường thật |
 
 ### 2.3. Cách đọc bức tranh này

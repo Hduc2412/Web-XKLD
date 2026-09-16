@@ -75,7 +75,7 @@ cùng ở mặt phẳng xử lý**, Khối 4 ở mặt phẳng quản trị.
 
 | Khối | Vai trò | Gồm những gì |
 |---|---|---|
-| **1 · Kênh tiếp nhận** | Nơi ứng viên gặp hệ thống | Kênh công khai kết nối chatbot: trò chuyện tư vấn, gửi CV, xem đơn được gợi ý, chọn đơn và xác nhận đăng ký, đặt lịch hẹn |
+| **1 · Kênh tiếp nhận** | Nơi ứng viên gặp hệ thống | Kênh công khai kết nối chatbot: trò chuyện tư vấn, gửi CV, xem đơn được gợi ý, chọn đơn và xác nhận đăng ký, đặt lịch hẹn. Không phần nào đòi tài khoản đăng nhập |
 | **2 · Lõi xử lý** | Nơi diễn ra toàn bộ nghiệp vụ tự động | Tiếp nhận câu hỏi, đọc hồ sơ CV, tra cứu tài liệu, đối chiếu đơn hàng, kiểm chứng câu trả lời, sinh phiếu tóm tắt |
 | **3 · Kho dữ liệu** | Nơi lưu mọi thứ | Hồ sơ ứng viên, khách tiềm năng, đơn hàng, lịch hẹn, hội thoại, tài liệu tri thức, bản CV gốc, nhật ký |
 | **4 · Phân hệ quản trị** | Nơi nhân viên làm việc | Màn hình tổng quan, hàng đợi phiếu, hồ sơ tập trung, lịch hẹn, danh mục đơn tuyển dụng, trạng thái hồ sơ, nhân viên và điểm, nhật ký |

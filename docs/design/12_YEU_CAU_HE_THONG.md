@@ -48,7 +48,7 @@
 
 | Mã | Yêu cầu |
 |---|---|
-| C1 | Nhận file CV do ứng viên tải lên ngay trong khung chat |
+| C1 | Nhận file CV do ứng viên tải lên trong kênh khách hàng |
 | C2 | Đọc nội dung file và rút ra thông tin năng lực: họ tên, năm sinh, chuyên ngành, trình độ tiếng Nhật, kinh nghiệm |
 | C3 | Ghi nhận riêng phần nguyện vọng do ứng viên nói: khu vực mong muốn, loại hình công việc, lý do |
 | C4 | **Chỉ ghi nhận điều có trong hồ sơ hoặc lời ứng viên.** Không suy diễn, không tự thêm nhận xét cảm tính |
