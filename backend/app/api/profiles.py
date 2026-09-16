@@ -176,28 +176,8 @@ def _payload_values(payload: BaseModel | None) -> dict[str, Any]:
 
 
 def _decorate(profile: dict[str, Any]) -> dict[str, Any]:
-    """Gắn nhãn tiếng Việt để giao diện không giữ bản sao bảng danh mục."""
-    fields = profile.get("fields") or {}
-    preferences = profile.get("preferences") or {}
-
-    def label(section: dict[str, Any], key: str, table: dict[str, str]) -> str | None:
-        value = (section.get(key) or {}).get("value")
-        return table.get(value) if value else None
-
-    profile["labels"] = {
-        "status": catalog.PROFILE_STATUS_LABELS.get(profile.get("status", "")),
-        "japanese_level": label(fields, "japanese_level", catalog.JAPANESE_LEVEL_LABELS),
-        "education_level": label(fields, "education_level", catalog.EDUCATION_LABELS),
-        "gender": label(fields, "gender", catalog.GENDER_LABELS),
-        "desired_employer_type": label(
-            preferences, "desired_employer_type", catalog.EMPLOYER_TYPE_LABELS
-        ),
-        "desired_region_group": label(
-            preferences, "desired_region_group", catalog.REGION_LABELS
-        ),
-    }
-    profile["missing_required"] = store.missing_required(profile)
-    return profile
+    """Nhãn hiển thị. Định nghĩa nằm ở tầng dữ liệu vì phiếu tóm tắt cũng dùng."""
+    return store.decorate(profile)
 
 
 async def _load_or_404(session_id: str) -> dict[str, Any]:

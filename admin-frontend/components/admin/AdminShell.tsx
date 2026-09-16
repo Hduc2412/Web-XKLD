@@ -9,8 +9,10 @@ import { AuthUser, loadCurrentUser, logout } from "@/lib/auth";
 
 const navigation = [
   { href: "/admin", label: "Tổng quan", icon: "▦" },
+  { href: "/admin/queue", label: "Hàng đợi hồ sơ", icon: "⇥" },
   { href: "/admin/appointments", label: "Lịch hẹn", icon: "◷" },
   { href: "/admin/leads", label: "Khách hàng", icon: "♙" },
+  { href: "/admin/profiles", label: "Hồ sơ ứng viên", icon: "☺" },
   { href: "/admin/applications", label: "Hồ sơ tuyển dụng", icon: "▤" },
   { href: "/admin/job-orders", label: "Đơn tuyển dụng", icon: "▣" },
   { href: "/admin/recommendation-logs", label: "Nhật ký giới thiệu", icon: "◈" },

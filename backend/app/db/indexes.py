@@ -8,11 +8,23 @@ module đó.
 """
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from app.db import candidate_profiles, job_orders, recommendation_logs
+from app.db import (
+    candidate_documents,
+    candidate_profiles,
+    consultation_reports,
+    job_orders,
+    recommendation_logs,
+)
 
 
 # Thêm module mới vào đây khi tạo collection mới.
-_MODULES = (job_orders, candidate_profiles, recommendation_logs)
+_MODULES = (
+    job_orders,
+    candidate_profiles,
+    candidate_documents,
+    consultation_reports,
+    recommendation_logs,
+)
 
 
 async def ensure_domain_indexes(db: AsyncIOMotorDatabase) -> None:

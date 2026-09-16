@@ -82,35 +82,47 @@ NGOÀI PHẠM VI ĐỒ ÁN
 | Hệ thống nội bộ | Đăng nhập, ba vai trò, phân quyền theo vai trò, nhật ký thao tác |
 | Màn hình quản trị | Tổng quan, khách hàng, lịch hẹn, hội thoại, tri thức, người dùng, nhật ký |
 | Nạp tri thức | Quy trình thu thập, làm sạch, cắt đoạn và đưa tài liệu vào kho tra cứu |
+| Danh mục đơn tuyển dụng | Khai báo đơn, nhập hàng loạt từ bảng tính, vòng đời trạng thái, công bố ra kênh khách hàng, nhật ký thay đổi |
+| Đọc hồ sơ CV | Nhận file PDF/DOCX, lưu bản gốc, rút thông tin thành trường dữ liệu kèm đoạn trích dẫn trong tài liệu |
+| Hồ sơ ứng viên | Tách năng lực và nguyện vọng, mỗi giá trị mang nguồn riêng, ứng viên xác nhận trước khi dùng |
+| Giới thiệu đơn hàng | Loại đơn không đủ điều kiện, xếp hạng theo nguyện vọng, giải trình từng tiêu chí, ghi nhật ký giới thiệu |
+| Đăng ký sơ bộ | Ứng viên tự chọn đơn và xác nhận; chỉ đăng ký được đơn đã giới thiệu cho chính mình và đã đạt điều kiện bắt buộc |
+| Phiếu tóm tắt tư vấn | Bản chụp hồ sơ, đơn đã chọn, lý do phù hợp, điểm còn thiếu và tài liệu đã gửi — dựng hoàn toàn bằng mã, không qua mô hình ngôn ngữ |
+| Hàng đợi hồ sơ | Hồ sơ chưa ai nhận hiện cho mọi nhân viên; nhận việc có khóa chống hai người cùng nhận |
+| Phân công sở hữu | Chuyển hồ sơ cho người khác (quản lý) và trả về hàng đợi (chính người phụ trách), đều bắt ghi lý do và lưu vào lịch sử hồ sơ |
+| Thông báo dùng chung | Thông báo không còn gắn riêng vào lịch hẹn; đăng ký mới, chuyển tay và trả việc đều sinh thông báo tắt được |
 
 ### 2.2. Đang thiếu — chính là phần trọng tâm còn lại
 
 | Phần | Trạng thái |
 |---|---|
-| **Danh mục đơn hàng** | Chưa có dữ liệu và chưa có màn hình quản lý |
-| **Đọc hồ sơ CV** | Chưa có — hệ thống hiện chưa nhận file |
-| **Giới thiệu đơn hàng phù hợp** | Chưa có |
-| **Phiếu tóm tắt tư vấn** | Chưa có |
-| **Nhật ký giới thiệu** | Chưa có |
-| Kênh khách hàng / UI | Mới có chatbot; cấu trúc và UI/UX **chưa được thống nhất** |
-| Hồ sơ ứng viên tập trung | Chưa gom đủ CV, hội thoại và đề xuất về một màn hình |
-| Triển khai chạy thật | Đang chạy trên máy cá nhân, chưa đưa lên môi trường thật |
-| **Đăng ký sơ bộ** | Chưa có — mới xong thiết kế nghiệp vụ và điều kiện xác nhận |
-| **Hàng đợi hồ sơ cho nhân viên** | Chưa có — cần luồng nhận, khóa sở hữu, chuyển người phụ trách |
-| **Vòng đời trạng thái hồ sơ** | Chưa có đầy đủ vòng đời và lịch sử chuyển trạng thái |
 | **Điểm nhân viên** | Chưa có — cần lưu theo sự kiện, không chỉ một số tổng |
+| Màn hình vòng đời hồ sơ | Backend đã đủ trạng thái và lịch sử; giao diện mới hiện thao tác bàn giao, chưa hiện dòng thời gian chuyển trạng thái |
+| Đọc chữ trong ảnh và bản scan | Chưa có — ảnh chụp và bản scan **được nhận và lưu giữ** nhưng chưa rút được chữ; nhân viên mở file đọc rồi nhập tay. Giữ lại như vậy là có chủ ý: để đếm xem có bao nhiêu ứng viên thật sự gửi ảnh, rồi mới quyết định có làm phần đọc ảnh hay không |
+| Hồ sơ ứng viên tập trung | Đã có màn hình hồ sơ kèm tài liệu gốc; chưa gom hội thoại và đề xuất về cùng một chỗ |
+| Kênh khách hàng / UI | Mới có chatbot và các trang giới thiệu; vị trí gửi CV và UI/UX **chưa được thống nhất** |
+| Triển khai chạy thật | Đang chạy trên máy cá nhân, chưa đưa lên môi trường thật |
 
 ### 2.3. Cách đọc bức tranh này
 
-Phần đã xong là **nền móng**: tiếp nhận câu hỏi, trả lời có căn cứ, đặt lịch, quản lý nội bộ.
-
-Phần còn thiếu là **chuỗi giá trị chính của đề tài**:
+Phần đã xong gồm **nền móng** — tiếp nhận câu hỏi, trả lời có căn cứ, đặt lịch, quản lý
+nội bộ — và trọn vẹn **chuỗi giá trị chính**:
 
 ```text
 CV / lời kể  →  hồ sơ có cấu trúc  →  đối chiếu đơn hàng  →  giới thiệu kèm lý do  →  phiếu tóm tắt
+   ✓                  ✓                      ✓                      ✓                      ✓
 ```
 
-Đây là phần biến hệ thống từ "một chatbot trả lời câu hỏi" thành "một trợ lý sơ tuyển".
+Chuỗi này là thứ biến hệ thống từ "một chatbot trả lời câu hỏi" thành "một trợ lý sơ tuyển",
+và nay đã nối liền từ đầu tới cuối: gửi một tờ CV vào, xác nhận hồ sơ, chọn một đơn trong
+danh sách được giới thiệu — nhân viên nhận được một phiếu tóm tắt đủ để nhấc máy gọi ngay.
+
+Phần còn lại không nằm trên chuỗi này nữa. Đó là phần **vận hành**, và cũng đã xong phần
+lớn: hồ sơ có vòng trạng thái, có đúng một người phụ trách tại một thời điểm, chuyển tay
+và trả về hàng đợi đều để lại lý do trong lịch sử.
+
+Còn thiếu duy nhất phần **đo hiệu suất nhân viên** — ghi điểm theo từng sự kiện thay vì
+giữ một con số tổng không giải thích được.
 
 ---
 
@@ -118,16 +130,16 @@ CV / lời kể  →  hồ sơ có cấu trúc  →  đối chiếu đơn hàng 
 
 Thứ tự này **không đảo được**, vì mỗi bước là đầu vào của bước sau.
 
-| Bước | Việc | Kết quả cần đạt |
-|---|---|---|
-| 1 | Dựng danh mục đơn tuyển dụng và màn hình quản lý | Có dữ liệu chuẩn để công khai và đối chiếu |
-| 2 | Nhận CV PDF/DOCX và lập hồ sơ ứng viên | Lưu bản gốc, trường dữ liệu và nguồn trích xuất |
-| 3 | Xác nhận hồ sơ và đơn ứng viên lựa chọn | Không tạo đăng ký từ suy đoán của AI |
-| 4 | Đối chiếu điều kiện và giải thích đơn phù hợp | Kết quả xác định, có thể kiểm tra lại |
-| 5 | Tạo đăng ký sơ bộ, phiếu tóm tắt và hàng đợi nhân viên | Nhân viên nhận đủ bối cảnh mà không nhập lại |
-| 6 | Áp dụng vòng đời trạng thái và phân công sở hữu | Một hồ sơ có một người phụ trách tại một thời điểm |
-| 7 | Bổ sung quản lý nhân viên và điểm theo sự kiện | Quản lý theo dõi được hiệu suất và lịch sử điều chỉnh |
-| 8 | Thiết kế kênh khách hàng rồi kiểm thử tổng thể | Chỉ đo kiểm sau khi chuỗi nghiệp vụ đã chạy đủ |
+| Bước | Việc | Kết quả cần đạt | Tình trạng |
+|---|---|---|---|
+| 1 | Dựng danh mục đơn tuyển dụng và màn hình quản lý | Có dữ liệu chuẩn để công khai và đối chiếu | Xong |
+| 2 | Nhận CV PDF/DOCX và lập hồ sơ ứng viên | Lưu bản gốc, trường dữ liệu và nguồn trích xuất | Xong |
+| 3 | Xác nhận hồ sơ và đơn ứng viên lựa chọn | Không tạo đăng ký từ suy đoán của AI | Xong |
+| 4 | Đối chiếu điều kiện và giải thích đơn phù hợp | Kết quả xác định, có thể kiểm tra lại | Xong |
+| 5 | Tạo đăng ký sơ bộ, phiếu tóm tắt và hàng đợi nhân viên | Nhân viên nhận đủ bối cảnh mà không nhập lại | Xong |
+| 6 | Áp dụng vòng đời trạng thái và phân công sở hữu | Một hồ sơ có một người phụ trách tại một thời điểm | Xong |
+| 7 | Bổ sung quản lý nhân viên và điểm theo sự kiện | Quản lý theo dõi được hiệu suất và lịch sử điều chỉnh | **Đang tới lượt** |
+| 8 | Thiết kế kênh khách hàng rồi kiểm thử tổng thể | Chỉ đo kiểm sau khi chuỗi nghiệp vụ đã chạy đủ | Chưa |
 
 ---
 

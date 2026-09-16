@@ -9,12 +9,16 @@ from app.api.auth import router as auth_router
 from app.api.audit import router as audit_router
 from app.api.applications import router as application_router
 from app.api.customer_journey import router as customer_journey_router
+from app.api.documents import public_router as public_document_router
+from app.api.documents import router as document_router
 from app.api.job_orders import public_router as public_job_order_router
 from app.api.job_orders import router as job_order_router
 from app.api.matching import public_router as public_match_router
 from app.api.matching import router as recommendation_log_router
 from app.api.profiles import public_router as public_profile_router
 from app.api.profiles import router as profile_router
+from app.api.registrations import public_router as public_registration_router
+from app.api.registrations import router as registration_router
 from app.db.database import close_db, init_db
 from app.core.config import settings
 
@@ -52,6 +56,10 @@ app.include_router(public_profile_router)
 app.include_router(profile_router)
 app.include_router(public_match_router)
 app.include_router(recommendation_log_router)
+app.include_router(public_document_router)
+app.include_router(document_router)
+app.include_router(public_registration_router)
+app.include_router(registration_router)
 
 @app.get("/")
 def read_root():
@@ -60,3 +68,17 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+if __name__ == "__main__":
+    # Chạy bằng `python main.py` thì cổng lấy từ API_PORT trong .env, nên đổi cổng
+    # không phải sửa lệnh chạy ở từng chỗ. Cách cũ vẫn dùng được và vẫn thắng:
+    # `python -m uvicorn main:app --reload --port 8020`.
+    import uvicorn
+
+    uvicorn.run(
+        "main:app",
+        host=settings.api_host,
+        port=settings.api_port,
+        reload=True,
+    )

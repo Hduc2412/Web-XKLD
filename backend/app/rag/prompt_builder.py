@@ -1,4 +1,5 @@
 """Tạo context và prompt thống nhất cho luồng RAG."""
+from app.conversation.fallback_messages import SUPPORT_PHONE
 
 
 def build_context(hits: list) -> str:
@@ -41,7 +42,7 @@ Quy tắc bắt buộc:
 - Không lặp lại câu hỏi, không viết phần mở bài hoặc kết luận dư thừa.
 - Không dùng quá 1 emoji; ưu tiên không dùng nếu không cần.
 {history_rule}
-- Nếu nguồn không đủ thông tin, nói rõ chưa đủ dữ liệu và gợi ý liên hệ 0971.716.939.
+- Nếu nguồn không đủ thông tin, nói rõ chưa đủ dữ liệu và gợi ý liên hệ {SUPPORT_PHONE}.
 {history_section}
 --- THÔNG TIN TỪ WEBSITE ---
 {context}

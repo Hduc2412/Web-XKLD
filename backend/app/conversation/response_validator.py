@@ -5,17 +5,18 @@ Kiểm tra câu trả lời của Gemini trước khi trả về user.
 
 import re
 
-CORRECT_PHONE = ["0971.716.939", "0971716939"]
+from app.conversation.fallback_messages import (
+    ALLOWED_PHONES,
+    INVALID_ANSWER,
+    RATE_LIMITED,
+)
+
+CORRECT_PHONE = list(ALLOWED_PHONES)
 MIN_LENGTH = 20
 
-FALLBACK = (
-    "Xin lỗi, mình chưa có đủ thông tin để trả lời câu này. "
-    "Vui lòng liên hệ anh Quang qua số 0971.716.939 để được tư vấn trực tiếp nhé!"
-)
-RATE_LIMIT_FALLBACK = (
-    "Hiện chatbot đang có nhiều yêu cầu cùng lúc. "
-    "Bạn vui lòng thử lại sau khoảng một phút nhé!"
-)
+# Giữ tên cũ để không phá chỗ đang import; nội dung lấy từ fallback_messages.
+FALLBACK = INVALID_ANSWER
+RATE_LIMIT_FALLBACK = RATE_LIMITED
 
 def validate(answer: str, intent: str = "chung", awaiting_lead: bool = False) -> tuple[bool, str]:
     if not answer or len(answer.strip()) < MIN_LENGTH:

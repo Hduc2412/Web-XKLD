@@ -30,6 +30,9 @@ class ChatResponse(BaseModel):
     sources: list
     session_id: str
     intent: str = "chung"
+    # True khi hệ thống không đủ căn cứ để trả lời và phải dùng câu dự phòng.
+    # Frontend dựa vào đây để hiển thị khác đi, và Analytics đếm tỷ lệ fallback.
+    is_fallback: bool = False
 
 
 @router.post("/chat", response_model=ChatResponse)

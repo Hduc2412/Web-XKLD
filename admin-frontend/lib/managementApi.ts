@@ -1,5 +1,5 @@
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8020";
 
 export interface Overview {
   appointments_total: number;
@@ -290,6 +290,52 @@ export interface CandidateProfile {
   missing_required: string[];
   created_at: string;
   updated_at: string;
+}
+
+export interface CandidateDocument {
+  code: string;
+  session_id: string;
+  filename: string;
+  content_type: string;
+  size_bytes: number;
+  page_count: number;
+  status: "received" | "extracted" | "unreadable" | "failed";
+  profile_code: string | null;
+  extracted_fields: string[];
+  /** Trường máy đọc ra nhưng hệ thống không dám nhận, kèm lý do. */
+  rejected: Record<string, string>;
+  error: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QueuedRegistration {
+  application_code: string;
+  lead_code: string;
+  customer_name: string;
+  phone: string;
+  status: string;
+  assigned_to: string | null;
+  job_order_code: string;
+  job_order_title: string | null;
+  match_score: number | null;
+  profile_code: string;
+  report_code: string | null;
+  japanese_level: string | null;
+  destination: string | null;
+  created_at: string;
+}
+
+export interface ConsultationReport {
+  code: string;
+  application_code: string;
+  profile_code: string;
+  job_order_code: string;
+  /** Phiếu dạng chữ thuần — nhân viên đọc thẳng hoặc dán vào tin nhắn nội bộ. */
+  text: string;
+  gaps: string[];
+  missing_info: string[];
+  created_at: string;
 }
 
 // --- Nhật ký giới thiệu ---
@@ -640,6 +686,64 @@ export const managementApi = {
       method: "PATCH",
       body: JSON.stringify({ assigned_to: assignedTo }),
     }),
+
+  /**
+   * Tài liệu chưa gắn được vào hồ sơ nào (ảnh chụp, bản scan, đọc hỏng) chỉ tra
+   * được qua đường này — chúng không thuộc hồ sơ nào nên không hiện ở đâu khác.
+   */
+  documents: (status?: string) => {
+    const query = status ? `?status=${encodeURIComponent(status)}` : "";
+    return request<{ items: CandidateDocument[] }>(`/documents${query}`).then(
+      (payload) => payload.items,
+    );
+  },
+  documentStats: () =>
+    request<{
+      by_status: Record<string, number>;
+      images: number;
+      total: number;
+    }>("/documents/stats"),
+  profileDocuments: (profileCode: string) =>
+    request<{ items: CandidateDocument[] }>(
+      `/documents/profile/${encodeURIComponent(profileCode)}`,
+    ).then((payload) => payload.items),
+  documentText: (code: string) =>
+    request<{ code: string; text: string }>(
+      `/documents/${encodeURIComponent(code)}/text`,
+    ),
+  /**
+   * Đường tải bản gốc. Trả về chuỗi thay vì gọi `fetch`: trình duyệt phải tự mở
+   * đường này thì mới nhận được file kèm tên gốc, và cookie phiên đi theo sẵn.
+   */
+  documentOriginalUrl: (code: string) =>
+    `${BACKEND_URL}/documents/${encodeURIComponent(code)}/original`,
+
+  // --- Hàng đợi đăng ký sơ bộ ---
+  registrationQueue: () =>
+    request<{ items: QueuedRegistration[]; count: number }>("/registrations/queue"),
+  acceptRegistration: (code: string) =>
+    request<QueuedRegistration>(
+      `/registrations/${encodeURIComponent(code)}/accept`,
+      { method: "POST" },
+    ),
+  registrationReport: (code: string) =>
+    request<ConsultationReport>(
+      `/registrations/${encodeURIComponent(code)}/report`,
+    ),
+  myRegistrations: () =>
+    request<{ items: QueuedRegistration[] }>("/registrations/mine").then(
+      (payload) => payload.items,
+    ),
+  handoverRegistration: (code: string, assignedTo: string, note: string) =>
+    request<QueuedRegistration>(
+      `/registrations/${encodeURIComponent(code)}/handover`,
+      { method: "POST", body: JSON.stringify({ assigned_to: assignedTo, note }) },
+    ),
+  releaseRegistration: (code: string, note: string) =>
+    request<QueuedRegistration>(
+      `/registrations/${encodeURIComponent(code)}/release`,
+      { method: "POST", body: JSON.stringify({ note }) },
+    ),
 
   // --- Nhật ký giới thiệu ---
   recommendationLogs: (filters?: {

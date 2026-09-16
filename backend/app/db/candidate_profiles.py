@@ -143,6 +143,38 @@ def missing_required(profile: dict[str, Any]) -> list[str]:
     ]
 
 
+def decorate(profile: dict[str, Any]) -> dict[str, Any]:
+    """Gắn nhãn tiếng Việt để nơi hiển thị không phải giữ bản sao bảng danh mục.
+
+    Đặt ở tầng dữ liệu chứ không ở tầng API, vì phiếu tóm tắt tư vấn cũng cần
+    đúng những nhãn này. Để mỗi nơi tự tra bảng thì sớm muộn phiếu và màn hình sẽ
+    gọi cùng một thứ bằng hai cái tên khác nhau.
+    """
+    from app.matching import catalog
+
+    fields = profile.get("fields") or {}
+    preferences = profile.get("preferences") or {}
+
+    def label(section: dict[str, Any], key: str, table: dict[str, str]) -> str | None:
+        value = (section.get(key) or {}).get("value")
+        return table.get(value) if value else None
+
+    profile["labels"] = {
+        "status": catalog.PROFILE_STATUS_LABELS.get(profile.get("status", "")),
+        "japanese_level": label(fields, "japanese_level", catalog.JAPANESE_LEVEL_LABELS),
+        "education_level": label(fields, "education_level", catalog.EDUCATION_LABELS),
+        "gender": label(fields, "gender", catalog.GENDER_LABELS),
+        "desired_employer_type": label(
+            preferences, "desired_employer_type", catalog.EMPLOYER_TYPE_LABELS
+        ),
+        "desired_region_group": label(
+            preferences, "desired_region_group", catalog.REGION_LABELS
+        ),
+    }
+    profile["missing_required"] = missing_required(profile)
+    return profile
+
+
 def public_view(profile: dict[str, Any]) -> dict[str, Any]:
     """Bản dành cho ứng viên. Ẩn lịch sử và thông tin phân công nội bộ."""
     hidden = {"history", "assigned_to", "lead_code", "phone_normalized", "_id"}
@@ -266,6 +298,21 @@ async def set_assignment(code: str, assigned_to: str | None) -> dict[str, Any] |
         {"$set": {"assigned_to": assigned_to, "updated_at": now()}},
         return_document=ReturnDocument.AFTER,
         projection={"_id": 0},
+    )
+
+
+async def attach_document(code: str, document_code: str) -> None:
+    """Ghi nhận hồ sơ này có dữ liệu đến từ file nào.
+
+    `$addToSet` thay vì `$push`: tải lại đúng file cũ rồi bóc tách lần nữa là
+    chuyện bình thường, và khi đó danh sách nguồn không nên có hai mục giống hệt.
+    """
+    await get_db()[COLLECTION].update_one(
+        {"code": code},
+        {
+            "$addToSet": {"source_document_codes": document_code},
+            "$set": {"updated_at": now()},
+        },
     )
 
 
