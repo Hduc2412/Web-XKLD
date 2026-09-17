@@ -104,6 +104,73 @@ Dữ liệu thử đã được xóa khỏi database sau khi kiểm xong.
 
 ---
 
+## 2b. Đo chất lượng theo chỉ tiêu spec
+
+Bước 8 của spec là *"thiết kế kênh khách hàng rồi kiểm thử tổng thể"*. Phần thiết
+kế giao diện cần chốt với bên phát triển widget; phần đo kiểm thì đã dựng sẵn bộ
+dữ liệu và bộ chấm để tới lúc chốt xong là chạy được ngay.
+
+```bash
+cd backend
+.\venv\Scripts\python.exe -m scripts.danh_gia_chat_luong
+```
+
+Bộ này chạy **ngoại tuyến** — không cần Qdrant, không cần Gemini, không cần
+MongoDB. Kết quả lần chạy 17/09/2026:
+
+| Hạng mục | Kết quả | Mục tiêu spec §7 | Đạt |
+|---|---:|---:|:---:|
+| Phân loại ý định | 85/100 = 85,0% | ≥ 85% | vừa đủ |
+| Trích số điện thoại | 17/20 = 85,0% | ≥ 95% | chưa |
+| Bộ đối chiếu — 21 khẳng định | 21/21 = 100% | 100% | có |
+
+### Bộ dữ liệu đánh giá
+
+Đặt tại `backend/tests/fixtures/danh_gia/`, đúng chỗ spec §7 quy định.
+
+| File | Nội dung | Dùng để trả lời |
+|---|---|---|
+| `cau_hoi_y_dinh.json` | 100 câu gán nhãn tay, phủ đủ 12 nhóm ý định, có cả câu không dấu và câu khó | Bộ phân loại có đúng không |
+| `../chatbot/bo_cau_hoi.json` | 35 câu: 8 câu **phải trả lời** kèm chuỗi bắt buộc, 27 câu **phải từ chối** | Hệ thống có trả lời khi thiếu căn cứ không |
+| `so_dien_thoai.json` | 20 câu, 11 câu có số và 9 câu chứa chuỗi số dễ nhầm | Có bắt nhầm năm sinh, mức lương, mã đơn thành số liên hệ không |
+| `ho_so_doi_chieu.json` | 8 hồ sơ kèm 21 khẳng định kiểm được bằng số | Bộ lọc điều kiện cứng có loại nhầm đơn nào không |
+| `../cv/dap_an.json` | 6 CV mẫu kèm đáp án từng trường | Thông tin rút từ CV có đúng bản gốc không |
+
+**Nhãn do người gán, không lấy từ đầu ra của chính hệ thống.** Nếu lấy kết quả
+máy làm đáp án thì phép đo luôn ra 100% và không nói lên điều gì.
+
+Bốn câu thật sự nằm giữa hai nhóm — ví dụ *"hoàn tiền khi trượt phỏng vấn"* vừa
+là chi phí vừa là phỏng vấn — được đánh dấu chấp nhận cả hai nhãn. Tính chúng là
+sai thì con số đo tranh cãi về nhãn chứ không đo chất lượng bộ phân loại.
+
+### Bộ đối chiếu: 21/21 khẳng định đúng
+
+Đây là câu hỏi *"bộ lọc điều kiện cứng có loại nhầm đơn nào không"*, và là phần
+có giá trị học thuật cao nhất nên được soi kỹ nhất.
+
+| Hồ sơ | Số đơn đạt / 18 | Khẳng định đáng chú ý |
+|---|---:|---|
+| Đủ điều kiện rõ ràng | 9 | Không dòng nào "chưa rõ"; đơn đứng đầu ở Kantō |
+| Chỉ khai họ tên và tiếng Nhật | 11 | **Nhiều hơn** hồ sơ khai đủ — thiếu dữ liệu không loại ai |
+| Chưa học tiếng Nhật | 0 | Mọi đơn bị loại đều nêu được lý do |
+| Quá tuổi phần lớn đơn | 3 | Có đơn bị loại vì tuổi, không đơn nào bị loại vì kinh nghiệm |
+| Thiếu năm sinh và giới tính | 11 | Không đơn nào bị loại vì tuổi hay giới tính |
+| Trình độ cao nhất | 14 | Không ít hơn mọi hồ sơ khác |
+| Nữ | 11 | Đơn yêu cầu nữ không bị loại vì giới tính |
+| Nguyện vọng cực đoan | 12 | Bằng đúng hồ sơ không nêu nguyện vọng |
+
+Con số **11 > 9** ở hàng thứ hai là bằng chứng gọn nhất cho nguyên tắc *chỉ loại
+khi chắc chắn*: hồ sơ khai ít hơn lại thấy nhiều đơn hơn, vì cái chưa biết được
+ghi là "chưa rõ" chứ không bị đem ra loại.
+
+### Hai hạng mục chưa đo được ở đây
+
+Từ chối khi thiếu căn cứ, và độ chính xác đọc CV — cả hai cần Qdrant và Gemini
+đang chạy. Dữ liệu đã soạn xong, chỉ chờ chạy. Spec đặt mốc 30 CV mẫu, hiện mới
+có 6, nên con số đọc CV chưa đủ tư cách làm bằng chứng trong báo cáo.
+
+---
+
 ## 3. Các vấn đề đã phát hiện
 
 Phần này đáng chú ý hơn con số 485, vì nó cho thấy việc kiểm thử có tác dụng thật.

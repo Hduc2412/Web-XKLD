@@ -303,6 +303,99 @@ của bạn với file của bạn.
 
 ---
 
+## 9. Kết quả đo phần của bạn, kèm hai lỗi cụ thể
+
+Bước 8 của spec là "thiết kế kênh khách hàng rồi kiểm thử tổng thể". Tôi đã dựng
+sẵn bộ dữ liệu đánh giá để tới lúc chốt giao diện là đo được ngay:
+
+```bash
+cd backend
+.\venv\Scripts\python.exe -m scripts.danh_gia_chat_luong
+```
+
+Bộ này chạy **ngoại tuyến**, không cần Qdrant hay Gemini, nên bạn chạy được bất
+cứ lúc nào. Kết quả lần chạy 17/09/2026:
+
+| Hạng mục | Kết quả | Mục tiêu spec §7 | Đạt |
+|---|---:|---:|:---:|
+| Phân loại ý định | 85/100 = 85,0% | ≥ 85% | vừa đủ |
+| Trích số điện thoại | 17/20 = 85,0% | ≥ 95% | chưa |
+| Bộ đối chiếu (phần của tôi) | 21/21 = 100% | 100% | có |
+
+Hai hạng mục đầu thuộc phần của bạn. Tôi **không sửa** `app/conversation/` theo
+đúng cam kết, nên báo lại đây.
+
+### 9.1. `extract_phone` bỏ sót ba dạng số mà hệ thống đã biết xử lý
+
+`app/conversation/entity_extractor.py` dùng `PHONE_PATTERN = r"(0\d{9,10})"` và
+chỉ bỏ dấu chấm với khoảng trắng trước khi dò.
+
+Ba dạng dưới đây **không bắt được**, dù ứng viên gõ rất thường:
+
+| Người dùng gõ | Hiện tại | Đúng ra phải là |
+|---|---|---|
+| `Liên hệ +84912345678` | `None` | `0912345678` |
+| `Số 84 987 654 321` | `None` | `0987654321` |
+| `0971-716-939 là số công ty đúng không ạ?` | `None` | `0971716939` |
+
+Điều đáng nói: **dự án đã có sẵn hàm xử lý đúng cả ba dạng này** —
+`app/core/phone.py: normalize_vietnamese_phone`. Tôi đã kiểm:
+
+```
+'+84912345678'  -> '0912345678'
+'84987654321'   -> '0987654321'
+'0971-716-939'  -> '0971716939'
+```
+
+Nên bản vá gọn: bỏ thêm dấu gạch nối khi làm sạch chuỗi, nới mẫu dò để bắt cả
+dạng `+84`/`84`, rồi đẩy kết quả qua `normalize_vietnamese_phone` thay vì trả
+thẳng chuỗi vừa khớp. Làm vậy thì hai nơi trong hệ thống hiểu số điện thoại
+giống nhau, thay vì mỗi nơi một kiểu.
+
+Ngoài ra `\d{9,10}` sau số 0 cho phép chuỗi **11 chữ số**, dài hơn mọi số điện
+thoại Việt Nam. Đây là chỗ dễ bắt nhầm một dãy số bất kỳ thành số liên hệ, và
+hậu quả là nhân viên gọi vào số không tồn tại.
+
+### 9.2. Khớp từ khóa theo chuỗi con khiến "khoảng" trúng "khoản"
+
+Câu *"Một tháng em kiếm được khoảng bao nhiêu?"* bị xếp vào `chi_phi` thay vì
+`luong_thuong`, dù `kiếm được` nằm đúng trong nhóm `luong_thuong`.
+
+Lý do: bộ phân loại so khớp theo chuỗi con trên bản không dấu. `khoảng` bỏ dấu
+thành `khoang`, mà chuỗi đó **chứa** `khoan` — tức từ khóa `khoản` của nhóm
+`chi_phi`. Hai nhóm hòa điểm, và `INTENT_PRIORITY` xếp `chi_phi` trên
+`luong_thuong` nên `chi_phi` thắng.
+
+Đây là loại lỗi im lặng: không báo gì, chỉ trả lời lệch chủ đề. Cách sửa thường
+dùng là so khớp theo ranh giới từ thay vì chuỗi con.
+
+### 9.3. Mười một câu bộ phân loại chưa bắt được
+
+Không phải lỗi, chỉ là từ khóa chưa phủ. Liệt kê để bạn cân nhắc bổ sung:
+
+- Điều kiện: *hình xăm*, *cận thị*, *chưa tốt nghiệp*, *nam hay nữ*, *cần có bằng gì*
+- Chi phí: *tốn bao nhiêu tiền* (nhóm chưa có từ khóa `tiền` đứng một mình)
+- Lương: *làm thêm giờ có được tính tiền*
+- Công việc: *ca trực*, *trực đêm*
+
+Bộ câu hỏi đầy đủ nằm ở `backend/tests/fixtures/danh_gia/cau_hoi_y_dinh.json`,
+có gán nhãn tay. Bốn câu thật sự nằm giữa hai nhóm đã được đánh dấu chấp nhận cả
+hai nhãn, nên con số 85% đo chất lượng bộ phân loại chứ không đo tranh cãi về nhãn.
+
+### 9.4. Hai mươi câu để kiểm ràng buộc "không trả lời khi thiếu căn cứ"
+
+`backend/tests/fixtures/chatbot/bo_cau_hoi.json` — bộ bạn đã dựng — nay có thêm hai mươi câu mà
+kho tri thức công ty **không thể** có căn cứ: tỷ giá hôm nay, chính sách visa năm
+sau, phí của công ty đối thủ, đoán trước kết quả phỏng vấn, cách qua mặt khám sức
+khỏe. Mỗi câu kèm lý do vì sao không trả lời được.
+
+Đây là phép đo trực tiếp cho ràng buộc quan trọng nhất của đồ án. Mục tiêu là
+**100%** số câu rơi vào nhánh từ chối và mời gặp nhân viên — không câu nào được
+bịa ra một con số. Bộ này cần Qdrant và Gemini đang chạy nên tôi chưa chấm; nhờ
+bạn chạy khi tiện, vì nhánh trả lời là phần của bạn.
+
+---
+
 ## Tài liệu liên quan
 
 | File | Nội dung |

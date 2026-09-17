@@ -1,0 +1,161 @@
+{
+  "mo_ta": "Bộ hồ sơ để soi bộ đối chiếu trên 19 đơn mẫu. Mỗi hồ sơ kèm những khẳng định kiểm được bằng số, không phải nhận xét cảm tính. Trọng tâm là câu hỏi 'bộ lọc điều kiện cứng có loại nhầm đơn nào không'.",
+  "muc_tieu": "100% khẳng định phải đúng",
+  "so_ho_so": 8,
+  "ho_so": [
+    {
+      "ma": "HS-01",
+      "ten": "Đủ điều kiện rõ ràng",
+      "fields": {
+        "full_name": "Nguyễn Văn An",
+        "birth_year": 2003,
+        "gender": "nam",
+        "education_level": "cao_dang",
+        "japanese_level": "N4",
+        "experience_years": 1,
+        "care_experience": true
+      },
+      "preferences": {
+        "desired_prefecture": "Tokyo",
+        "desired_employer_type": "vien_duong_lao"
+      },
+      "khang_dinh": [
+        "co_it_nhat_mot_don_dat",
+        "khong_co_dong_chua_ro_nao",
+        "don_dung_dau_o_kanto"
+      ]
+    },
+    {
+      "ma": "HS-02",
+      "ten": "Chỉ khai họ tên và tiếng Nhật",
+      "fields": {
+        "full_name": "Trần Thị Bình",
+        "japanese_level": "N4"
+      },
+      "preferences": {},
+      "khang_dinh": [
+        "co_it_nhat_mot_don_dat",
+        "so_don_dat_khong_it_hon_HS-01",
+        "co_cau_hoi_bo_sung"
+      ],
+      "ghi_chu": "Thiếu dữ liệu KHÔNG được loại đơn. Đây là khẳng định quan trọng nhất."
+    },
+    {
+      "ma": "HS-03",
+      "ten": "Chưa học tiếng Nhật",
+      "fields": {
+        "full_name": "Lê Thị Hoa",
+        "birth_year": 2007,
+        "gender": "nu",
+        "education_level": "trung_cap",
+        "japanese_level": "chua_hoc",
+        "experience_years": 0
+      },
+      "preferences": {},
+      "khang_dinh": [
+        "so_don_dat_it_hon_HS-01",
+        "moi_don_bi_loai_deu_co_ly_do_ro_rang"
+      ],
+      "ghi_chu": "Chưa học là một câu trả lời đã có, không phải chưa rõ."
+    },
+    {
+      "ma": "HS-04",
+      "ten": "Quá tuổi phần lớn đơn",
+      "fields": {
+        "full_name": "Phạm Minh Tuấn",
+        "birth_year": 1988,
+        "gender": "nam",
+        "education_level": "cao_dang",
+        "japanese_level": "N4",
+        "experience_years": 13,
+        "care_experience": true
+      },
+      "preferences": {},
+      "khang_dinh": [
+        "co_don_bi_loai_vi_tuoi",
+        "khong_don_nao_bi_loai_vi_kinh_nghiem"
+      ]
+    },
+    {
+      "ma": "HS-05",
+      "ten": "Thiếu năm sinh và giới tính",
+      "fields": {
+        "full_name": "Vũ Thị Lan",
+        "education_level": "cao_dang",
+        "japanese_level": "N4",
+        "experience_years": 2
+      },
+      "preferences": {
+        "desired_prefecture": "Osaka"
+      },
+      "khang_dinh": [
+        "khong_don_nao_bi_loai_vi_tuoi",
+        "khong_don_nao_bi_loai_vi_gioi_tinh",
+        "co_cau_hoi_ve_nam_sinh",
+        "co_cau_hoi_ve_gioi_tinh"
+      ],
+      "ghi_chu": "Người chưa khai năm sinh không phải là người quá tuổi."
+    },
+    {
+      "ma": "HS-06",
+      "ten": "Trình độ cao nhất",
+      "fields": {
+        "full_name": "Đỗ Quang Huy",
+        "birth_year": 1999,
+        "gender": "nam",
+        "education_level": "dai_hoc",
+        "japanese_level": "N1",
+        "experience_years": 5,
+        "care_experience": true
+      },
+      "preferences": {},
+      "khang_dinh": [
+        "so_don_dat_khong_it_hon_moi_ho_so_khac",
+        "khong_don_nao_bi_loai_vi_tieng_nhat",
+        "khong_don_nao_bi_loai_vi_bang_cap"
+      ],
+      "ghi_chu": "Trình độ cao hơn không bao giờ được thấy ít đơn hơn."
+    },
+    {
+      "ma": "HS-07",
+      "ten": "Nữ, để soi tiêu chí giới tính",
+      "fields": {
+        "full_name": "Bùi Thị Ngọc",
+        "birth_year": 2002,
+        "gender": "nu",
+        "education_level": "cao_dang",
+        "japanese_level": "N4",
+        "experience_years": 2,
+        "care_experience": true
+      },
+      "preferences": {},
+      "khang_dinh": [
+        "co_it_nhat_mot_don_dat",
+        "don_yeu_cau_nu_khong_bi_loai_vi_gioi_tinh"
+      ]
+    },
+    {
+      "ma": "HS-08",
+      "ten": "Nguyện vọng cực đoan, không được loại ai",
+      "fields": {
+        "full_name": "Hoàng Văn Nam",
+        "birth_year": 2001,
+        "gender": "nam",
+        "education_level": "cao_dang",
+        "japanese_level": "N3",
+        "experience_years": 3
+      },
+      "preferences": {
+        "desired_prefecture": "Okinawa",
+        "desired_employer_type": "benh_vien",
+        "salary_expectation_jpy": 2000000,
+        "budget_vnd": 1
+      },
+      "khang_dinh": [
+        "so_don_dat_bang_ho_so_khong_co_nguyen_vong",
+        "moi_diem_nam_trong_khoang_0_100"
+      ],
+      "ghi_chu": "Nguyện vọng chỉ đổi thứ tự, không bao giờ loại đơn."
+    }
+  ]
+}
