@@ -6,13 +6,29 @@ from app.rag.taxonomy import infer_topic
 
 TOP_K = 5
 
-# Sàn tuyệt đối: đoạn hợp nhất mà không vượt mức này thì coi như kho tri thức
-# không có nội dung, và hệ thống từ chối. Đây là thứ chặn câu ngoài phạm vi.
+# Sàn tuyệt đối: đoạn hợp nhất không vượt mức này thì coi như kho không có nội
+# dung, và hệ thống từ chối.
 #
-# Đo trên kho hiện tại: câu ngoài phạm vi có đoạn đầu ở 0,56–0,59 ("giá bitcoin
-# hôm nay", "thời tiết Tokyo"), câu trong phạm vi ở 0,66–0,73. Sàn đặt ở 0,62 —
-# giữa hai vùng đó. Con số này **suy ra từ đúng kho tri thức hiện tại**; kho đổi
-# nhiều thì phải đo lại, đừng coi nó là hằng số của tự nhiên.
+# ## Sàn này KHÔNG quyết định được "câu hỏi có trả lời được không"
+#
+# Đo trên bộ 35 câu hỏi chuẩn, sau khi kho được nhúng lại đúng kiểu:
+#
+#     trong phạm vi (11 câu):  thấp nhất 0,6901   cao nhất 0,8004
+#     ngoài phạm vi (24 câu):  thấp nhất 0,5814   cao nhất 0,7107
+#
+# **Hai vùng chồng lên nhau.** Câu "Anh đoán xem em có đỗ phỏng vấn không?" lấy
+# về bài phỏng vấn với 0,7107 — rất gần nghĩa, nhưng kho không trả lời được câu
+# đang hỏi. Không con số nào tách được hai nhóm đó, vì điểm đo độ gần nghĩa chứ
+# không đo khả năng trả lời.
+#
+# Nên sàn chỉ làm đúng một việc nhỏ: chặn phần đuôi rõ ràng không liên quan
+# ("giá bitcoin" 0,6134, "thời tiết Tokyo" 0,5935). Việc còn lại thuộc về quy
+# tắc trong prompt — chỉ dùng thông tin từ kho, không đủ thì nói rõ là chưa có.
+# Đo trên bộ câu hỏi cho thấy phần đó đang làm đúng.
+#
+# 0,65 nằm giữa hai mốc thật: dưới câu trong phạm vi thấp nhất 0,04 và trên câu
+# ngoài phạm vi rõ ràng nhất 0,037. Đây là con số đo được trên kho hiện tại, kho
+# đổi nhiều thì phải đo lại.
 MIN_TOP_SCORE = settings.min_retrieval_score
 
 # Dải tương đối: giữ những đoạn không thấp hơn đoạn đầu quá chừng này.

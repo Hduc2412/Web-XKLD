@@ -127,7 +127,19 @@ def generate_response(prompt: str) -> str:
         return "Lỗi Gemini: Không nhận được nội dung trả lời"
     return parts[0]["text"]
 
-def create_embedding(text: str) -> list | None:
+# Hai vai khác nhau, hai không gian vector khác nhau. Câu hỏi của người dùng nhúng
+# kiểu QUERY, còn đoạn tài liệu nằm trong kho phải nhúng kiểu DOCUMENT. Dùng lẫn
+# thì vẫn ra vector và vẫn tính được độ gần nghĩa, nên hỏng mà không báo lỗi —
+# chỉ thấy điểm thấp đi và đoạn đúng tụt hạng.
+#
+# Đo trên một đoạn thật: cùng câu hỏi, đoạn nhúng kiểu QUERY được 0,6423, nhúng
+# đúng kiểu DOCUMENT được 0,7006. Chênh 0,06 — vừa đúng khoảng làm đoạn đúng rơi
+# khỏi ngưỡng lọc.
+TASK_QUERY = "RETRIEVAL_QUERY"
+TASK_DOCUMENT = "RETRIEVAL_DOCUMENT"
+
+
+def create_embedding(text: str, task_type: str = TASK_QUERY) -> list | None:
     url = (
         f"https://generativelanguage.googleapis.com/v1beta/models/"
         f"{settings.embedding_model}:embedContent"
@@ -135,7 +147,7 @@ def create_embedding(text: str) -> list | None:
     payload = {
         "model": f"models/{settings.embedding_model}",
         "content": {"parts": [{"text": text}]},
-        "taskType": "RETRIEVAL_QUERY",
+        "taskType": task_type,
     }
     data = _post_with_retry(url, payload, label="Gemini embedding")
 

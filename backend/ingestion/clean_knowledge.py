@@ -122,9 +122,12 @@ def main() -> None:
         if args.reembed:
             # Vector cũ được tính trên phần chữ còn rác. Bỏ rác mà giữ vector cũ
             # thì việc truy xuất vẫn bị rác chi phối, nên phải nhúng lại.
-            from app.llm.gemini import create_embedding
+            from app.llm.gemini import TASK_DOCUMENT, create_embedding
 
-            fresh = create_embedding(after)
+            # Đoạn tài liệu phải nhúng kiểu DOCUMENT. Bản trước gọi hàm không
+            # truyền tham số nên lấy mặc định là QUERY — cả kho tri thức bị nhúng
+            # sai không gian, điểm của đoạn đúng thấp đi chừng 0,06 và tụt hạng.
+            fresh = create_embedding(after, task_type=TASK_DOCUMENT)
             if not fresh:
                 raise RuntimeError(
                     f"Nhúng lại thất bại ở đoạn {index}/{len(cleaned)} "
