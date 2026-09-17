@@ -1,6 +1,6 @@
 # Kiểm thử hệ thống
 
-Lần chạy gần nhất: 17/09/2026. **490 ca kiểm thử, tất cả đạt**, thời gian chạy khoảng 5 giây.
+Lần chạy gần nhất: 17/09/2026. **550 ca kiểm thử, tất cả đạt**, thời gian chạy khoảng 4 giây.
 
 ```bash
 cd backend
@@ -22,7 +22,7 @@ bản giả lập, nên chạy được cả khi hết hạn mức gọi mô hì
 | Module | Số ca | Phạm vi kiểm | Kết quả |
 |---|---:|---|:---:|
 | `test_matching_engine` | 65 | **Bộ đối chiếu**: bảy tiêu chí cứng, bốn tiêu chí mềm, tính tất định, thứ tự xếp hạng, không đọc đồng hồ | Đạt |
-| `test_candidate_profiles` | 41 | Hồ sơ ứng viên: gộp theo thứ tự ưu tiên nguồn, khóa lạc quan theo phiên bản, chặn client tự khai nguồn, phân quyền | Đạt |
+| `test_candidate_profiles` | 43 | Hồ sơ ứng viên: gộp theo thứ tự ưu tiên nguồn, khóa lạc quan theo phiên bản, chặn client tự khai nguồn, phân quyền | Đạt |
 | `test_job_orders` | 30 | Danh mục đơn tuyển dụng: chuẩn hóa danh mục, ràng buộc dữ liệu, vòng đời trạng thái, phân quyền, lọc công khai | Đạt |
 | `test_matching_service` | 27 | Tầng điều phối: kho đơn đem xét, dấu vân tay danh mục, bộ nhớ đệm mười phút, nội dung nhật ký | Đạt |
 | `test_matching_seeded_data` | 28 | Nghiệm thu bộ đối chiếu trên đúng mười chín đơn mẫu sẽ dùng khi demo | Đạt |
@@ -51,10 +51,15 @@ bản giả lập, nên chạy được cả khi hết hạn mức gọi mô hì
 | `test_registrations` | 26 | Đăng ký sơ bộ: chuỗi chốt chặn, dựng lại khách hàng cũ theo số điện thoại | Đạt |
 | `test_handover` | 16 | Bàn giao hồ sơ: nhận xử lý, phân công, chuyển giao | Đạt |
 | `test_response_validator` | 13 | Kiểm chứng câu trả lời của mô hình trước khi gửi đi | Đạt |
-| **Tổng** | **490** | | **Đạt** |
+| `test_prompt_rules` | 18 | Quy tắc dựng prompt: mỗi luật sinh từ một lời đã đo được | Đạt |
+| `test_refusal_flag` | 11 | Khi nào chatbot phải từ chối thay vì đoán | Đạt |
+| `test_embedding_cache` | 10 | Bộ nhớ đệm vector nhúng, tiết kiệm hạn mức gọi mô hình | Đạt |
+| `test_intent_classifier` | 10 | Phân loại ý định câu hỏi | Đạt |
+| `test_retriever_selection` | 9 | Chọn đoạn đem vào ngữ cảnh: sàn tuyệt đối và dải tương đối | Đạt |
+| **Tổng** | **550** | | **Đạt** |
 
-**283 ca cho danh mục đơn hàng và bộ đối chiếu**, **101 ca** cho đọc CV, đăng ký sơ bộ, hàng đợi
-và điểm nhân viên, **106 ca** còn lại là phần nền có sẵn và phần của nhóm phát triển chatbot.
+**285 ca cho danh mục đơn hàng và bộ đối chiếu**, **101 ca** cho đọc CV, đăng ký sơ bộ, hàng đợi
+và điểm nhân viên, **164 ca** còn lại là phần nền có sẵn và phần của nhóm phát triển chatbot.
 Giữ cho nhóm cuối luôn đạt là điều kiện để hai phần cùng tồn tại trên một mã nguồn.
 
 Bộ đối chiếu chiếm phần lớn số ca không phải ngẫu nhiên. Nó là thứ quyết định ứng viên nào được
@@ -232,7 +237,7 @@ Lần chạy gần nhất: 18 đơn đã xét, 9 đạt, đơn đứng đầu 10
 
 ## 3. Chín lỗi thật do kiểm thử phát hiện
 
-Phần này đáng chú ý hơn con số 490, vì nó cho thấy bộ kiểm thử có tác dụng thật.
+Phần này đáng chú ý hơn con số 550, vì nó cho thấy bộ kiểm thử có tác dụng thật.
 
 | Lỗi | Nếu lọt ra thì sao | Ca chặn |
 |---|---|---|
@@ -326,7 +331,7 @@ ra điều gì vừa hỏng, không phải mở mã nguồn ra đọc mới bi�
 
 ## 5. Những phần chưa có kiểm thử tự động
 
-Nói rõ để không hiểu nhầm con số 490 là đã phủ hết hệ thống.
+Nói rõ để không hiểu nhầm con số 550 là đã phủ hết hệ thống.
 
 | Phần | Hiện trạng | Dự kiến |
 |---|---|---|
@@ -335,6 +340,7 @@ Nói rõ để không hiểu nhầm con số 490 là đã phủ hết hệ thố
 | Chatbot trả lời có căn cứ | Có bộ nghiệm thu `scripts/nghiem_thu_chatbot.py` trên bộ câu hỏi chuẩn | Bổ sung câu hỏi khi kho tri thức dày thêm |
 | Đăng ký sơ bộ và phiếu tóm tắt | Đã có `test_registrations.py` | — |
 | Hàng đợi và điểm nhân viên | Đã có `test_handover.py` và `test_employee_scores.py`, gồm ca hai người cùng nhận một hồ sơ | — |
+| Đóng gói Docker | Đã dựng và chạy thử cả sáu dịch vụ ngày 17/09: website, quản trị và backend lên qua nginx, nạp được 19 đơn mẫu, 550 ca kiểm thử chạy trong container đều đạt | Chạy lại trước khi bàn giao |
 | Chạy tải | Chưa làm | Ngoài phạm vi |
 
 Sáu file CV mẫu đã sẵn sàng, gồm bốn định dạng khác nhau và một bản scan không có lớp chữ.

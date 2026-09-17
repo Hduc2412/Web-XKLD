@@ -12,6 +12,8 @@ lưu dữ liệu nghiệp vụ và Qdrant để lưu vector.
 - [Kế hoạch triển khai](docs/ROADMAP.md)
 - [Bộ tài liệu thiết kế hệ thống](docs/design/00_INDEX.md) — requirements, use case,
   workflow, database, API, frontend, AI pipeline, kiến trúc, task breakdown
+- [Chạy bằng Docker](docs/DOCKER.md)
+- [Kiểm thử](docs/KIEM_THU.md)
 
 ## Thành phần
 
@@ -102,7 +104,22 @@ tạo `frontend/.env.local` và `admin-frontend/.env.local`:
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8020
 ```
 
+## Chạy bằng Docker
+
+Cách nhanh nhất để dựng cả hệ thống trên một máy sạch:
+
+```bash
+cp backend/.env.example backend/.env   # rồi điền GEMINI_API_KEY, JWT_SECRET, hash mật khẩu
+docker volume create qdrant_data       # bỏ qua nếu volume đã có
+docker compose up -d --build
+```
+
+Website ở <http://localhost>, hệ thống quản trị ở <http://localhost:8080>,
+backend ở <http://localhost:8020>. Chi tiết và ba chỗ dễ vấp: [docs/DOCKER.md](docs/DOCKER.md).
+
 ## Chạy trên máy cá nhân
+
+Dùng cách này khi đang phát triển, vì có nạp lại nóng.
 
 ### 1. MongoDB
 
