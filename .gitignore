@@ -8,6 +8,10 @@ __pycache__/
 .env
 *.env
 
+# Kết quả nghiệm thu là ảnh chụp của một lần chạy trên một máy, không phải mã
+# nguồn. Đưa vào kho thì mỗi lần ai đó chạy lại là một lần xung đột vô nghĩa.
+backend/tests/fixtures/chatbot/ket_qua_gan_nhat.json
+
 # Debug files
 debug.html
 *.log

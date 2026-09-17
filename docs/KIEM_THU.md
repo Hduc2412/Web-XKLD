@@ -1,6 +1,6 @@
 # Kiểm thử hệ thống
 
-Lần chạy gần nhất: 15/09/2026. **371 ca kiểm thử, tất cả đạt**, thời gian chạy khoảng 4 giây.
+Lần chạy gần nhất: 17/09/2026. **485 ca kiểm thử, tất cả đạt**, thời gian chạy khoảng 5 giây.
 
 ```bash
 cd backend
@@ -270,12 +270,91 @@ Nói rõ để không hiểu nhầm con số 371 là đã phủ hết hệ thố
 | Phần | Hiện trạng | Dự kiến |
 |---|---|---|
 | Giao diện website và màn hình quản trị | Kiểm tra bằng mắt và bằng lệnh dựng bản phát hành | Chưa có kế hoạch kiểm thử tự động trong phạm vi đồ án |
-| Đọc hồ sơ CV | Mới có sáu file mẫu trong `backend/tests/fixtures/cv/` kèm đáp án chấm | Sẽ đo tỷ lệ trường rút đúng trên sáu hồ sơ đó |
-| Đăng ký sơ bộ và phiếu tóm tắt | Chưa viết | Kiểm chuỗi tám chốt chặn theo đúng thứ tự |
-| Hàng đợi và điểm nhân viên | Chưa viết | Có ca kiểm hai người cùng nhận một hồ sơ, một người phải nhận lỗi 409 |
+| Đọc hồ sơ CV | Có bộ nghiệm thu `scripts/nghiem_thu_doc_cv.py` chấm từng trường trên sáu hồ sơ mẫu | Chạy lại trước mỗi mốc bàn giao |
+| Chatbot trả lời có căn cứ | Có bộ nghiệm thu `scripts/nghiem_thu_chatbot.py` trên bộ câu hỏi chuẩn | Bổ sung câu hỏi khi kho tri thức dày thêm |
+| Đăng ký sơ bộ và phiếu tóm tắt | Đã có `test_registrations.py` | — |
+| Hàng đợi và điểm nhân viên | Đã có `test_handover.py` và `test_employee_scores.py`, gồm ca hai người cùng nhận một hồ sơ | — |
 | Chạy tải | Chưa làm | Ngoài phạm vi |
 
 Sáu file CV mẫu đã sẵn sàng, gồm bốn định dạng khác nhau và một bản scan không có lớp chữ.
 Mỗi hồ sơ nhắm một tình huống: đủ điều kiện, trình độ cao, chưa học tiếng, quá tuổi, thiếu năm
 sinh, và ghi trình độ tiếng Nhật mập mờ. File `dap_an.json` đi kèm ghi những gì bộ đọc phải rút
 ra đúng, dùng để chấm điểm bằng số khi phần đó hoàn thành.
+
+
+---
+
+## 6. Ba bộ nghiệm thu chạy tay
+
+`docs/design/13 §4` đặt ra ba câu hỏi đúng/sai cho phần đo kiểm. Mỗi câu có một bộ riêng.
+Cả ba **không nằm trong `unittest`** vì chúng cần mạng, cần database thật, và hai trong ba
+bộ gọi mô hình ngôn ngữ. Bộ kiểm thử thường phải chạy được cả khi mất mạng và hết hạn mức,
+nên trộn vào đó là làm hỏng tính chất ấy.
+
+| Câu hỏi của spec | Bộ nghiệm thu | Cần gì |
+|---|---|---|
+| Hệ thống có trả lời sai khi không đủ căn cứ không? | `scripts.nghiem_thu_chatbot` | Qdrant, MongoDB, gọi mô hình |
+| Bộ lọc điều kiện cứng có loại nhầm đơn nào không? | `scripts.nghiem_thu_doi_chieu` | MongoDB. **Không** gọi mô hình |
+| Thông tin rút từ CV có đúng bản gốc không? | `scripts.nghiem_thu_doc_cv` | Gọi mô hình |
+
+```bash
+cd backend
+.\venv\Scripts\python.exe -m scripts.nghiem_thu_chatbot
+.\venv\Scripts\python.exe -m scripts.nghiem_thu_doi_chieu
+.\venv\Scripts\python.exe -m scripts.nghiem_thu_doc_cv
+```
+
+### Bộ câu hỏi chatbot có hai chiều
+
+`tests/fixtures/chatbot/bo_cau_hoi.json` chia câu hỏi làm hai loại ngược nhau:
+
+- **phải trả lời** — kho tri thức có nội dung này. Hỏng khi bot từ chối, vì khách bị đẩy
+  sang hotline một cách vô ích.
+- **phải từ chối** — kho không có. Hỏng khi bot trả lời, vì khách tin và hành động theo.
+
+Phải có cả hai chiều. Chỉ đo chiều "không được bịa" thì cách đạt điểm tuyệt đối rẻ nhất là
+cho bot từ chối mọi câu, và nó sẽ vô dụng trong khi bảng điểm rất đẹp.
+
+### Hạn mức gọi mô hình chặn việc chạy một lượt
+
+Gói miễn phí của Gemini cho **20 lượt gọi mỗi ngày** cho mỗi model
+(`GenerateRequestsPerDayPerProjectPerModel-FreeTier`). Bộ câu hỏi hiện có hơn ba mươi câu,
+mỗi câu một lượt gọi, nên **không thể chạy trọn trong một ngày** trên khoá miễn phí.
+
+Vì vậy bộ nghiệm thu chatbot lưu kết quả từng câu vào `ket_qua_gan_nhat.json` và lần chạy
+sau chỉ đo những câu chưa có:
+
+```bash
+.\venv\Scripts\python.exe -m scripts.nghiem_thu_chatbot                 # chạy tiếp
+.\venv\Scripts\python.exe -m scripts.nghiem_thu_chatbot --gioi-han=10   # chỉ đo 10 câu
+.\venv\Scripts\python.exe -m scripts.nghiem_thu_chatbot --lam-lai       # bỏ kết quả cũ, đo lại từ đầu
+```
+
+Muốn chạy trọn một lượt thì cần khoá trả phí. Đây là điều kiện cần ghi vào kế hoạch bảo vệ,
+không phải chuyện phát sinh lúc chạy.
+
+### Bộ nghiệm thu phải trung thực về chính nó
+
+Hai chốt chặn được thêm sau khi cả hai bộ đều từng cho ra **bảng kết quả sai**:
+
+- **Kho tri thức không với tới được.** Lần chạy đầu tiên, Qdrant đang tắt nên mọi câu rơi
+  vào câu dự phòng: toàn bộ phần phải-trả-lời hỏng, toàn bộ phần phải-từ-chối đạt. Nhìn
+  bảng thì tưởng chatbot hỏng nặng, thật ra chưa đo được gì. Nay bộ này kiểm tra kho trước
+  khi đo và dừng hẳn nếu không kết nối được.
+- **Dịch vụ quá tải.** Câu trả lời "chatbot đang có nhiều yêu cầu cùng lúc" từng bị chấm là
+  "đã từ chối" — làm câu phải-từ-chối đạt vì một lý do chẳng liên quan gì. Nay nó được ghi
+  là *chưa đo được*.
+
+Một bộ nghiệm thu báo sai về chính nó còn tệ hơn là không có bộ nào, vì nó tạo ra niềm tin
+sai. Cả hai lỗi trên đều lộ ra ngay trong lần chạy đầu, và đều nằm trong bộ đo chứ không
+nằm trong sản phẩm.
+
+### Bộ đọc CV: bốn cột thay vì một con số
+
+`nghiem_thu_doc_cv` chấm mỗi trường vào một trong bốn cột. **ĐÚNG** và **SAI** thì rõ.
+**THIẾU** nghĩa là máy không dám nhận — không nguy hiểm bằng SAI, vì hệ thống sẽ hỏi lại
+ứng viên; nhưng nhiều quá thì bộ đọc thành vô dụng. **NGOÀI PHẠM VI** là các trường nguyện
+vọng, mà bộ đọc **cố ý không rút** từ CV: nguyện vọng phải do chính ứng viên nói ra.
+
+Chỉ cột SAI làm lượt nghiệm thu thất bại. Không biết thì hỏi là hành vi đúng; biết sai mới
+là hỏng.

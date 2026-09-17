@@ -61,8 +61,9 @@ def la_tu_choi(answer: str, is_fallback: bool) -> bool:
     return bool(is_fallback or answer in ALL_FALLBACKS or TU_CHOI.search(answer))
 
 
-# Gói miễn phí giới hạn hai mươi lượt gọi mỗi phút, nên chạy hết bộ câu hỏi rất
-# dễ đụng trần. Nghỉ giữa các câu để không tự làm hỏng phép đo của chính mình.
+# Nghỉ giữa các câu để không dồn cục lên dịch vụ. Lưu ý hạn mức gói miễn phí là
+# hai mươi lượt **mỗi ngày** cho mỗi model, không phải mỗi phút — nghỉ lâu hơn
+# cũng không giúp gì, đó là lý do bộ này phải chạy được thành nhiều đợt.
 NGHI_GIUA_CAU = 4.0
 
 
@@ -78,18 +79,79 @@ def _chuan_hoa(text: str) -> str:
     return text
 
 
+def kiem_tra_kho_tri_thuc() -> str | None:
+    """Kho tri thức phải với tới được trước khi đo.
+
+    Không có bước này thì Qdrant tắt sẽ khiến **mọi** câu rơi vào câu dự phòng:
+    phần phải-trả-lời hỏng sạch, phần phải-từ-chối đạt sạch. Nhìn bảng kết quả
+    thì tưởng chatbot hỏng, trong khi thật ra chưa đo được gì cả — kiểu sai tệ
+    nhất của một bộ nghiệm thu là báo sai về chính nó.
+    """
+    from qdrant_client.http.exceptions import ResponseHandlingException, UnexpectedResponse
+
+    from app.db.qdrant import COLLECTION_NAME, get_qdrant_client
+
+    try:
+        info = get_qdrant_client().get_collection(COLLECTION_NAME)
+    except (ResponseHandlingException, UnexpectedResponse, OSError) as exc:
+        return f"không kết nối được kho tri thức: {exc}"
+    if not info.points_count:
+        return f"kho tri thức '{COLLECTION_NAME}' rỗng"
+    return None
+
+
 async def hoi(cau_hoi: str) -> dict:
     """Mỗi câu một phiên riêng: câu trước không được làm nền cho câu sau."""
     return await process_message(cau_hoi, session_id=str(uuid.uuid4()))
 
 
+KET_QUA = FIXTURE.parent / "ket_qua_gan_nhat.json"
+
+
+def doc_ket_qua_cu() -> dict[str, dict]:
+    if not KET_QUA.exists():
+        return {}
+    return json.loads(KET_QUA.read_text(encoding="utf-8"))
+
+
+def ghi_ket_qua(rows: dict[str, dict]) -> None:
+    KET_QUA.write_text(
+        json.dumps(rows, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
 async def main() -> int:
     bo = json.loads(FIXTURE.read_text(encoding="utf-8"))
+
+    # `--lam-lai` bỏ hết kết quả cũ. Mặc định là chạy tiếp, vì hạn mức mỗi ngày
+    # không đủ cho cả bộ.
+    lam_lai = "--lam-lai" in sys.argv
+    gioi_han = 20
+    for arg in sys.argv[1:]:
+        if arg.startswith("--gioi-han="):
+            gioi_han = int(arg.split("=", 1)[1])
+
+    da_co = {} if lam_lai else doc_ket_qua_cu()
+    con_lai = [case for case in bo["cau_hoi"] if case["ma"] not in da_co]
+    if not con_lai:
+        print(f"Đã đo đủ {len(da_co)}/{len(bo['cau_hoi'])} câu từ những đợt trước.")
+    else:
+        print(
+            f"Đã có {len(da_co)} câu, còn {len(con_lai)}. "
+            f"Đợt này đo tối đa {gioi_han} câu."
+        )
+
+    tro_ngai = kiem_tra_kho_tri_thuc()
+    if tro_ngai:
+        print(f"DỪNG: {tro_ngai}.")
+        print("Bật Qdrant rồi chạy lại. Chạy tiếp lúc này chỉ cho ra một bảng sai.")
+        return 2
+
     await init_db()
 
-    dat, hong, loi = 0, [], []
+    loi: list[str] = []
     try:
-        for index, case in enumerate(bo["cau_hoi"]):
+        for index, case in enumerate(con_lai[:gioi_han]):
             if index:
                 await asyncio.sleep(NGHI_GIUA_CAU)
             try:
@@ -100,17 +162,31 @@ async def main() -> int:
                 continue
 
             answer = result.get("answer", "")
-            tu_choi = la_tu_choi(answer, result.get("is_fallback", False))
             print(f"\n[{case['ma']}] {case['cau_hoi']}")
             print(f"    {answer[:160]}")
 
+            # Quá tải dịch vụ không phải là một câu trả lời. Chấm nó thành "từ
+            # chối" làm câu phải-trả-lời hỏng oan, và tệ hơn là làm câu
+            # phải-từ-chối đạt vì một lý do chẳng liên quan gì tới chatbot.
+            if answer == RATE_LIMITED:
+                loi.append(f"{case['ma']}: dịch vụ quá tải")
+                print("    CHƯA ĐO ĐƯỢC — dịch vụ quá tải, chạy lại khi có hạn mức")
+                continue
+
+            tu_choi = la_tu_choi(answer, result.get("is_fallback", False))
+
             if case["loai"] == "phai_tu_choi":
                 if tu_choi:
-                    dat += 1
+                    da_co[case["ma"]] = {"dat": True, "loai": case["loai"]}
                     print("    ĐẠT — đã từ chối đúng lúc không có căn cứ")
                 else:
-                    hong.append(f"{case['ma']} · trả lời một thứ kho tri thức không có")
+                    da_co[case["ma"]] = {
+                        "dat": False,
+                        "loai": case["loai"],
+                        "vi_sao": "trả lời một thứ kho tri thức không có",
+                    }
                     print("    HỎNG — đáng lẽ phải từ chối")
+                ghi_ket_qua(da_co)
                 continue
 
             thieu = [
@@ -119,26 +195,45 @@ async def main() -> int:
                 if _chuan_hoa(chuoi) not in _chuan_hoa(answer)
             ]
             if tu_choi:
-                hong.append(f"{case['ma']} · từ chối một thứ kho tri thức có sẵn")
+                da_co[case["ma"]] = {
+                    "dat": False,
+                    "loai": case["loai"],
+                    "vi_sao": "từ chối một thứ kho tri thức có sẵn",
+                }
                 print("    HỎNG — từ chối trong khi kho có nội dung này")
             elif thieu:
-                hong.append(f"{case['ma']} · thiếu nội dung bắt buộc: {', '.join(thieu)}")
+                da_co[case["ma"]] = {
+                    "dat": False,
+                    "loai": case["loai"],
+                    "vi_sao": f"thiếu nội dung bắt buộc: {', '.join(thieu)}",
+                }
                 print(f"    HỎNG — thiếu: {', '.join(thieu)}")
             else:
-                dat += 1
+                da_co[case["ma"]] = {"dat": True, "loai": case["loai"]}
                 print("    ĐẠT")
+            ghi_ket_qua(da_co)
     finally:
         await close_db()
 
     tong = len(bo["cau_hoi"])
+    dat = sum(1 for row in da_co.values() if row["dat"])
+    hong = {ma: row for ma, row in da_co.items() if not row["dat"]}
+    chua_do = tong - len(da_co)
+
     print("\n" + "=" * 72)
-    print(f"ĐẠT {dat}/{tong}   HỎNG {len(hong)}   CHƯA ĐO ĐƯỢC {len(loi)}")
-    for line in hong:
-        print("  -", line)
+    print(f"ĐẠT {dat}   HỎNG {len(hong)}   CHƯA ĐO {chua_do}   (trên {tong} câu)")
+    for ma, row in sorted(hong.items()):
+        print(f"  - {ma} · {row['vi_sao']}")
     for line in loi:
         print("  ?", line)
+    if chua_do:
+        print(
+            f"\nHạn mức gói miễn phí là 20 lượt gọi mỗi ngày cho mỗi model, nên bộ này\n"
+            f"phải chạy nhiều đợt. Kết quả đã lưu ở {KET_QUA.name}; mai chạy lại lệnh\n"
+            f"cũ là nó đo tiếp {chua_do} câu còn lại."
+        )
     print("=" * 72)
-    return 1 if hong or loi else 0
+    return 1 if hong or chua_do else 0
 
 
 if __name__ == "__main__":
