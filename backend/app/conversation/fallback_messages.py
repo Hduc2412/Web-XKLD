@@ -43,7 +43,22 @@ RATE_LIMITED = (
     "Bạn vui lòng thử lại sau khoảng một phút nhé!"
 )
 
-ALL_FALLBACKS = (NO_KNOWLEDGE, LEAD_NO_KNOWLEDGE, INVALID_ANSWER, RATE_LIMITED)
+# Câu từ chối mà prompt yêu cầu mô hình dùng nguyên văn.
+#
+# Trước đây mô hình tự nghĩ lời từ chối, mỗi lần một kiểu: "website chưa cung
+# cấp", "tôi chưa tìm thấy", "thông tin từ website chưa đề cập"… Hệ thống phải dò
+# bằng biểu thức chính quy, mà dò thì có lúc trượt — và trượt nghĩa là một lời từ
+# chối bị đếm như câu trả lời thành công.
+#
+# Ấn định một câu cố định thì việc nhận biết thành so chuỗi chính xác. Biểu thức
+# chính quy bên dưới vẫn giữ, vì mô hình không phải lúc nào cũng nghe lời, và vì
+# những câu đã lưu từ trước vẫn mang lời lẽ cũ.
+MODEL_REFUSAL = (
+    "Thông tin này chưa có trong tài liệu của công ty. "
+    f"Bạn liên hệ {SUPPORT_PHONE} để được nhân viên tư vấn trực tiếp nhé."
+)
+
+ALL_FALLBACKS = (NO_KNOWLEDGE, LEAD_NO_KNOWLEDGE, INVALID_ANSWER, RATE_LIMITED, MODEL_REFUSAL)
 
 
 # Mô hình có cách từ chối riêng của nó, không dùng bốn câu trên. Những câu đó
