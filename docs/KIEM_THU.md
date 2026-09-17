@@ -1,6 +1,6 @@
 # Kiểm thử hệ thống
 
-Lần chạy gần nhất: 17/09/2026. **485 ca kiểm thử, tất cả đạt**, thời gian chạy khoảng 5 giây.
+Lần chạy gần nhất: 17/09/2026. **490 ca kiểm thử, tất cả đạt**, thời gian chạy khoảng 5 giây.
 
 ```bash
 cd backend
@@ -25,7 +25,7 @@ bản giả lập, nên chạy được cả khi hết hạn mức gọi mô hì
 | `test_candidate_profiles` | 41 | Hồ sơ ứng viên: gộp theo thứ tự ưu tiên nguồn, khóa lạc quan theo phiên bản, chặn client tự khai nguồn, phân quyền | Đạt |
 | `test_job_orders` | 30 | Danh mục đơn tuyển dụng: chuẩn hóa danh mục, ràng buộc dữ liệu, vòng đời trạng thái, phân quyền, lọc công khai | Đạt |
 | `test_matching_service` | 27 | Tầng điều phối: kho đơn đem xét, dấu vân tay danh mục, bộ nhớ đệm mười phút, nội dung nhật ký | Đạt |
-| `test_matching_seeded_data` | 23 | Nghiệm thu bộ đối chiếu trên đúng mười chín đơn mẫu sẽ dùng khi demo | Đạt |
+| `test_matching_seeded_data` | 28 | Nghiệm thu bộ đối chiếu trên đúng mười chín đơn mẫu sẽ dùng khi demo | Đạt |
 | `test_matching_api` | 22 | API đối chiếu: chặn hồ sơ chưa xác nhận, ẩn đơn bị loại khỏi ứng viên, phạm vi xem của nhân viên | Đạt |
 | `test_matching_weights` | 19 | Bộ trọng số ngoài mã: tổng đúng 100, mỗi luật con không vượt trọng số, thiếu file thì báo lỗi | Đạt |
 | `test_matching_explain` | 12 | Khối lý do: khớp từng byte với bản thiết kế, không import gì liên quan mô hình ngôn ngữ | Đạt |
@@ -46,11 +46,16 @@ bản giả lập, nên chạy được cả khi hết hạn mức gọi mô hì
 | `test_intent_entity` | 3 | Phân loại ý định và trích xuất thực thể | Đạt |
 | `test_session_lead` | 3 | Khôi phục phiên hội thoại | Đạt |
 | `test_runtime` | 2 | Bảng mã đầu ra | Đạt |
-| **Tổng** | **371** | | **Đạt** |
+| `test_cv_documents` | 31 | Đọc CV: nhận file, bóc tách, bộ kiểm chứng đoạn dẫn, gộp vào hồ sơ với nguồn `cv` | Đạt |
+| `test_employee_scores` | 28 | Điểm nhân viên ghi theo từng sự kiện, chống cộng trùng, điều chỉnh của quản lý | Đạt |
+| `test_registrations` | 26 | Đăng ký sơ bộ: chuỗi chốt chặn, dựng lại khách hàng cũ theo số điện thoại | Đạt |
+| `test_handover` | 16 | Bàn giao hồ sơ: nhận xử lý, phân công, chuyển giao | Đạt |
+| `test_response_validator` | 13 | Kiểm chứng câu trả lời của mô hình trước khi gửi đi | Đạt |
+| **Tổng** | **490** | | **Đạt** |
 
-**278 ca thuộc phần đồ án này** (69 ca danh mục đơn hàng và dữ liệu mẫu, 209 ca hồ sơ ứng viên
-và bộ đối chiếu). 93 ca còn lại là phần nền có sẵn và phần của nhóm phát triển chatbot; giữ cho
-chúng luôn đạt là điều kiện để hai phần cùng tồn tại trên một mã nguồn.
+**283 ca cho danh mục đơn hàng và bộ đối chiếu**, **101 ca** cho đọc CV, đăng ký sơ bộ, hàng đợi
+và điểm nhân viên, **106 ca** còn lại là phần nền có sẵn và phần của nhóm phát triển chatbot.
+Giữ cho nhóm cuối luôn đạt là điều kiện để hai phần cùng tồn tại trên một mã nguồn.
 
 Bộ đối chiếu chiếm phần lớn số ca không phải ngẫu nhiên. Nó là thứ quyết định ứng viên nào được
 giới thiệu đơn nào, và vì nó là Python thuần — không gọi mô hình ngôn ngữ, không đọc đồng hồ,
@@ -225,9 +230,9 @@ Lần chạy gần nhất: 18 đơn đã xét, 9 đạt, đơn đứng đầu 10
 
 ---
 
-## 3. Bốn lỗi thật do kiểm thử phát hiện
+## 3. Chín lỗi thật do kiểm thử phát hiện
 
-Phần này đáng chú ý hơn con số 371, vì nó cho thấy bộ kiểm thử có tác dụng thật.
+Phần này đáng chú ý hơn con số 490, vì nó cho thấy bộ kiểm thử có tác dụng thật.
 
 | Lỗi | Nếu lọt ra thì sao | Ca chặn |
 |---|---|---|
@@ -235,6 +240,11 @@ Phần này đáng chú ý hơn con số 371, vì nó cho thấy bộ kiểm th�
 | Ba trường được đọc sau bước kiểm lỗi | Ô sai ở kinh nghiệm, tổng chi phí, ngày phỏng vấn âm thầm biến thành rỗng. Người nhập không hề biết dữ liệu của mình bị mất | NL-15 |
 | Đơn rời trạng thái đang tuyển mà cờ công khai vẫn bật | Đơn đã tạm dừng hoặc đã đóng vẫn nằm trên website, ứng viên nộp hồ sơ vào đơn không còn nhận | DH-12 |
 | Vùng suy ra từ tỉnh bị loại khỏi hồ sơ trước khi lưu | Ứng viên muốn Tokyo sẽ chấm một đơn ở Kanagawa — cùng vùng Kantō, đáng cộng 25 điểm — **ngang bằng một đơn ở Fukuoka**. Danh sách giới thiệu vẫn ra, chỉ là sai thứ tự | HS-13 |
+| `requirements.txt` thiếu sáu gói, trong đó có `pydantic-settings` | **Ai clone repo về đều không chạy được.** `app/core/config.py` import nó ngay dòng đầu. Bản trên GitHub đã ở tình trạng đó suốt nhiều ngày | Dựng venv trắng rồi cài lại từ file |
+| `frontend/lib/publicApi.ts` trỏ cổng 8000 trong khi `lib/api.ts` cùng app đã là 8020 | Khung chat chạy bình thường còn **toàn bộ trang đơn hàng và luồng tư vấn thì rỗng**. Rất dễ chẩn đoán nhầm là lỗi nghiệp vụ | Rà soát toàn bộ khai báo cổng |
+| Gửi CV xong làm **trắng cả trang tư vấn** | `POST /public/documents` trả hồ sơ không qua `decorate` nên thiếu `labels`; giao diện đọc `profile.labels.japanese_level` và ném `TypeError`, React gỡ sạch DOM. **Ứng viên mất trắng mọi thứ vừa khai, không thông báo gì** | Chạy tay trọn kịch bản demo trên trình duyệt |
+| Mọi mốc thời gian trong màn hình quản trị **sai bảy tiếng** | Hồ sơ vừa đăng ký hiện là *"đăng ký 7 giờ trước"*. MongoDB lưu UTC nhưng driver trả datetime không mang múi giờ, FastAPI serialise thành chuỗi không có hậu tố `Z`, trình duyệt hiểu là giờ địa phương | Chạy tay trọn kịch bản demo |
+| Bộ chấm chất lượng tự nó không chạy được trên bản clone sạch | Quảng cáo là "chạy ngoại tuyến không cần gì" nhưng vẫn đòi `GEMINI_API_KEY`, vì `app.core.config` kiểm tra lúc import | Chạy thử chính bộ chấm trong bản công bố không có `.env` |
 
 Lỗi thứ nhất và lỗi thứ tư cùng một loại, và là loại nguy hiểm nhất: hệ thống vẫn chạy, không
 báo lỗi gì, chỉ âm thầm cho ra kết quả sai. Không có ca kiểm thử thì chỉ phát hiện được khi một
@@ -245,6 +255,55 @@ Lỗi thứ tư đáng nói thêm: nó không bị bộ kiểm thử đơn vị 
 liệu để lưu. Nó lộ ra khi chạy kịch bản nghiệm thu đầu-cuối trên database thật và nhìn thấy dòng
 `Vùng suy ra từ tỉnh: None`. Ca HS-13 được thêm vào sau đó, và giờ nó kiểm đúng chỗ: giá trị suy
 ra có thực sự đi được tới hồ sơ hay không.
+
+### 3.1. Đã sửa nhưng **chưa xác minh trên màn hình**
+
+Để riêng thay vì gộp vào bảng trên, vì *"đã sửa"* và *"đã nhìn thấy chạy đúng"* là
+hai chuyện khác nhau.
+
+| Lỗi | Đã làm gì | Còn thiếu gì |
+|---|---|---|
+| Lệch múi giờ bảy tiếng | Sửa bằng `tz_aware=True` ở nơi tạo Mongo client. Đã xác minh Python đọc ra `+00:00` và 490 test vẫn xanh | **Chưa tận mắt thấy** dòng "vừa xong" thay cho "7 giờ trước" trên màn hình quản trị — cổng 8020 bị giành giữa chừng |
+
+### 3.2. Vấn đề còn mở
+
+| Vấn đề | Ảnh hưởng | Đề xuất |
+|---|---|---|
+| Hạn mức Gemini gói miễn phí **20 lượt gọi mỗi ngày cho mỗi model** | Bộ câu hỏi chatbot 35 câu **không chạy trọn được trong một ngày**. Đây là ràng buộc phải đưa vào kế hoạch bảo vệ, không phải chuyện kỹ thuật vặt | Bộ đo đã lưu kết quả từng câu và chỉ đo phần còn thiếu ở lần sau |
+| Bộ câu hỏi lệch: 27 phải-từ-chối trên 35 câu | Một con bot từ chối tất cả vẫn được 27/35. Tỷ lệ đó làm bộ đo dễ dãi | Cân thêm câu phải-trả-lời, nhưng việc đó gắn với chuyện kho tri thức còn mỏng |
+| Bộ đọc CV mới có 6 hồ sơ mẫu | Spec §7 đặt mốc 30. Con số đọc CV chưa đủ tư cách làm bằng chứng trong báo cáo | Bổ sung thêm CV mẫu |
+| Hai phiên làm việc song song giành cổng và giành file | Đã hai lần dựng trùng công cụ: bộ câu hỏi chatbot, và bộ khẳng định cho bộ đối chiếu. Cả hai lần đều phải gộp lại sau | Kiểm cái đã có trước khi dựng cái mới; chia cố định `8020/3100/3101` và `8030/4000/4001` |
+| Chưa đóng gói Docker | Kế hoạch có hạng mục `docker-compose` 6 service kèm nginx | Làm sau khi chốt tính năng |
+| Chưa có `docs/handoff/KNOWLEDGE_BASE_SPEC.md` | Nhóm chatbot đang chờ bản mô tả API quản lý tri thức cho màn hình "Tri thức AI" | Viết và gửi |
+
+### 3.3. Đo chất lượng ngoại tuyến
+
+Ngoài ba bộ nghiệm thu ở mục 6, có một bộ chấm **không cần dịch vụ nào** — không
+Qdrant, không Gemini, không MongoDB, không cần cả `.env`:
+
+```bash
+cd backend
+.\venv\Scripts\python.exe -m scripts.danh_gia_chat_luong
+```
+
+| Hạng mục | Kết quả 17/09 | Mục tiêu spec §7 | Đạt |
+|---|---:|---:|:---:|
+| Phân loại ý định | 85/100 = 85,0% | ≥ 85% | vừa đủ |
+| Trích số điện thoại | 17/20 = 85,0% | ≥ 95% | chưa |
+
+Dữ liệu ở `backend/tests/fixtures/danh_gia/`, nhãn do người gán chứ không lấy từ
+đầu ra của chính hệ thống. Bốn câu thật sự nằm giữa hai nhóm ý định được đánh dấu
+chấp nhận cả hai nhãn, nên con số đo chất lượng bộ phân loại chứ không đo tranh
+cãi về nhãn.
+
+Hai lỗi của phần chatbot phát hiện qua bộ này, đã báo lại chứ không tự sửa vì
+`app/conversation/` thuộc phần người khác — chi tiết ở mục 9 của
+`docs/handoff/BAO_CAO_GUI_NHOM_CHATBOT.md`:
+
+- `extract_phone` bỏ sót `+84…`, `84 987 654 321`, `0971-716-939`, dù dự án **đã
+  có sẵn** `app/core/phone.py: normalize_vietnamese_phone` xử lý đúng cả ba.
+- Khớp từ khóa theo chuỗi con khiến `khoảng` trúng `khoản`, đẩy câu hỏi về lương
+  sang nhóm chi phí.
 
 ---
 
@@ -265,7 +324,7 @@ ra điều gì vừa hỏng, không phải mở mã nguồn ra đọc mới bi�
 
 ## 5. Những phần chưa có kiểm thử tự động
 
-Nói rõ để không hiểu nhầm con số 371 là đã phủ hết hệ thống.
+Nói rõ để không hiểu nhầm con số 490 là đã phủ hết hệ thống.
 
 | Phần | Hiện trạng | Dự kiến |
 |---|---|---|

@@ -258,6 +258,65 @@ class LevelProgressionTests(unittest.TestCase):
         self.assertEqual(counts, sorted(counts))
 
 
+class GenderAndExperienceTests(unittest.TestCase):
+    """Hai tiêu chí cứng chưa ca nào soi tới: giới tính và kinh nghiệm.
+
+    Bộ đơn mẫu có đơn chỉ tuyển nữ, nên đây là chỗ duy nhất kiểm được rằng tiêu
+    chí giới tính loại đúng người cần loại và không loại nhầm ai khác.
+    """
+
+    def _run(self, **fields) -> engine.MatchResult:
+        return engine.match_orders(pool(), facts(**fields), weights=WEIGHTS, as_of=AS_OF)
+
+    def _loai_vi(self, result: engine.MatchResult, khoa: str) -> list[str]:
+        return [
+            item.code
+            for item in result.items
+            for row in item.hard_rows
+            if row.key == khoa and row.result == engine.KHONG_DAT
+        ]
+
+    def test_a_woman_is_never_rejected_by_the_gender_criterion(self):
+        """Bộ đơn mẫu chỉ có đơn giới hạn nữ, không có đơn giới hạn nam."""
+        result = self._run(full_name="Bùi Thị Ngọc", birth_year=2002, gender="nu",
+                           education_level="cao_dang", japanese_level="N4")
+        self.assertEqual(self._loai_vi(result, "gender"), [])
+
+    def test_a_man_is_rejected_only_by_orders_that_ask_for_women(self):
+        result = self._run(full_name="Nguyễn Văn An", birth_year=2003, gender="nam",
+                           education_level="cao_dang", japanese_level="N4")
+        by_code = {d["code"]: d for d in pool()}
+        loai = self._loai_vi(result, "gender")
+        self.assertTrue(loai, "Bộ đơn mẫu phải có đơn giới hạn giới tính")
+        for code in loai:
+            self.assertEqual(by_code[code]["requirements"]["gender_pref"], "nu")
+
+    def test_not_declaring_a_gender_never_rejects_anyone(self):
+        """Chưa khai giới tính không phải là sai giới tính."""
+        result = self._run(full_name="Vũ Thị Lan", education_level="cao_dang",
+                           japanese_level="N4")
+        self.assertEqual(self._loai_vi(result, "gender"), [])
+        self.assertTrue(any("giới tính" in c.lower() for c in result.missing_info))
+
+    def test_plenty_of_experience_never_rejects_anyone(self):
+        """Tiêu chí kinh nghiệm là mức tối thiểu, không phải khoảng."""
+        result = self._run(full_name="Phạm Minh Tuấn", birth_year=1988, gender="nam",
+                           education_level="cao_dang", japanese_level="N4",
+                           experience_years=13, care_experience=True)
+        self.assertEqual(self._loai_vi(result, "experience"), [])
+        self.assertTrue(self._loai_vi(result, "age"), "38 tuổi phải trượt vài đơn vì tuổi")
+
+    def test_a_complete_profile_leaves_no_unclear_row(self):
+        result = engine.match_orders(pool(), facts_with(AN, AN_WISHES),
+                                     weights=WEIGHTS, as_of=AS_OF)
+        chua_ro = [
+            (item.code, row.key)
+            for item in result.items if item.eligible
+            for row in item.hard_rows if row.result == engine.CHUA_RO
+        ]
+        self.assertEqual(chua_ro, [])
+
+
 class PreferenceInfluenceTests(unittest.TestCase):
     """Nguyện vọng chỉ đổi thứ tự, không bao giờ loại đơn."""
 
