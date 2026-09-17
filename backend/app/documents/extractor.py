@@ -83,8 +83,11 @@ Quy tắc bắt buộc:
 - Với MỖI trường đã điền, phải ghi vào `evidence` một đoạn NGUYÊN VĂN
   lấy từ CV bên dưới, sao chép đúng từng ký tự, đủ để người đọc kiểm chứng.
 - `experience_years` là số năm kinh nghiệm làm việc, tính theo năm.
-- `care_experience` chỉ đặt true khi CV nêu kinh nghiệm chăm sóc người bệnh,
-  người già, điều dưỡng hoặc hộ lý.
+- `care_experience` chỉ đặt true khi CV mô tả công việc chăm sóc **đã thực sự
+  làm** — đi làm, hoặc thực tập có nêu đầu việc cụ thể. KHÔNG tính nguyện vọng,
+  mục tiêu nghề nghiệp, ngành đang học, hay danh sách kỹ năng: những mục đó nói
+  về việc muốn làm hoặc biết làm, không phải việc đã làm.
+- `experience_years` cũng vậy: chỉ đếm thời gian đã đi làm thật.
 - `japanese_level` lấy theo chứng chỉ hoặc trình độ CV nêu. CV nói chưa học
   tiếng Nhật thì ghi `chua_hoc`.
 

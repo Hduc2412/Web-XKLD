@@ -3,7 +3,7 @@
     "file": "01_nguyen_thi_mai.pdf",
     "format": "pdf",
     "layout": "chuan",
-    "note": "CV một cột, bố cục sạch. Trường hợp dễ nhất.",
+    "note": "CV một cột, bố cục sạch. Trường hợp dễ nhất. Sửa 17/09/2026: care_experience đổi False -> True. CV nêu thực tập ba tháng tại khoa Nội kèm đầu việc 'hỗ trợ vệ sinh cá nhân và cho người bệnh ăn uống'. Đáp án cũ hiểu trường này là 'đã đi làm chính thức', nhưng phiếu tóm tắt in ra là 'Từng chăm sóc người bệnh' — trả lời Không cho người đã làm đúng việc đó là nói sai với nhân viên tư vấn.",
     "expected": {
       "full_name": "Nguyễn Thị Mai",
       "birth_year": 2003,
@@ -12,7 +12,7 @@
       "major": "Điều dưỡng",
       "japanese_level": "N4",
       "experience_years": 0,
-      "care_experience": false,
+      "care_experience": true,
       "phone": "0912345678",
       "desired_prefecture": "Tokyo",
       "desired_employer_type": "vien_duong_lao"
