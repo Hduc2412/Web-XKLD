@@ -133,6 +133,34 @@ lời. **Không suy đoán** — cần công ty xác nhận rồi mới bổ sun
 Bốn chủ đề khác cũng trống hẳn, đã ghi nhận từ trước: **hình xăm**, **vĩnh trú và
 gia hạn**, **trình độ N3/N4**, **về nước trước hạn**.
 
+### 5.1. Đã tra lại website, không có
+
+Ngày 17/09/2026 tra lại toàn bộ `xklddieuduong.vn` để chắc chắn không phải kho
+thu thập thiếu. Kết quả: **website cũng không có**.
+
+| Danh mục trên menu | Số bài | Nội dung |
+|---|---:|---|
+| Hỏi đáp về điều dưỡng | 13 | **Toàn bộ nội dung nghiệp vụ của website** — và cả 13 bài đã nằm trong kho |
+| Học viên tại Nhật | 57 | "Đón tiếp em X", "Liên hoan", ảnh sự kiện |
+| Mọi người đăng ký | 84 | "Nguyễn Văn A – tỉnh B đăng ký đi Nhật" |
+| Phỏng vấn và nhập học | — | cùng dạng ảnh sự kiện |
+| Học viên xuất cảnh | — | cùng dạng ảnh sự kiện |
+
+Nghĩa là sáu câu ở bảng trên **không trả lời được bằng cách thu thập thêm**. Chúng
+là chính sách chưa từng được công bố ở đâu, và chỉ người của công ty mới trả lời
+được.
+
+### 5.2. Một lỗi tìm ra khi tra
+
+Bộ thu thập dùng tham số `?product_cat=`, trong khi website dùng `?danh-muc=`.
+Tham số sai thì website bỏ qua bộ lọc và trả về **cùng một danh sách mặc định**
+cho mọi danh mục — đó là lý do trước đây tôi kết luận nhầm rằng "website lọc danh
+mục bị hỏng". Website không hỏng; bộ thu thập gọi sai.
+
+Đã sửa. Nhưng **không chạy lại**, vì bốn danh mục còn lại toàn bài PR: nạp vào thì
+kho phồng lên hơn năm lần bằng nội dung không ai hỏi tới, và mỗi câu hỏi thật sẽ
+phải cạnh tranh với hàng trăm bài "đón tiếp em X".
+
 ---
 
 ## 6. Dùng tài liệu này thế nào
