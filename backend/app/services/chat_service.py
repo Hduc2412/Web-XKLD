@@ -9,7 +9,11 @@ from app.conversation.session_manager import session_manager
 from app.conversation.reference_resolver import resolve
 from app.conversation.intent_classifier import classify
 from app.conversation.response_validator import validate
-from app.conversation.fallback_messages import LEAD_NO_KNOWLEDGE, NO_KNOWLEDGE
+from app.conversation.fallback_messages import (
+    LEAD_NO_KNOWLEDGE,
+    NO_KNOWLEDGE,
+    looks_like_refusal,
+)
 from app.db.database import get_booking_draft, get_messages, save_message
 from app.booking.booking_service import process_booking_message
 
@@ -69,6 +73,16 @@ async def process_message(user_query: str, session_id: str) -> dict:
     # Câu trả lời bị chặn thì không được kèm nguồn: nói "chưa có thông tin"
     # mà vẫn hiện link tham khảo là tự mâu thuẫn trên màn hình người dùng.
     if not is_valid:
+        session.add_message("assistant", answer)
+        await _save_exchange(session_id, user_query, answer, intent, is_fallback=True)
+        return _response(answer, [], session_id, intent, is_fallback=True)
+
+    # Mô hình có thể tự từ chối bằng lời của nó, không dùng câu dự phòng nào.
+    # Những câu đó trước đây được ghi nhận như trả lời thành công, nên tỷ lệ
+    # "trả lời được" trong thống kê cao hơn thực tế. Đây cũng là lý do không kèm
+    # nguồn: nói "website chưa có thông tin này" mà vẫn hiện link tham khảo là
+    # tự mâu thuẫn ngay trên màn hình người dùng.
+    if looks_like_refusal(answer):
         session.add_message("assistant", answer)
         await _save_exchange(session_id, user_query, answer, intent, is_fallback=True)
         return _response(answer, [], session_id, intent, is_fallback=True)

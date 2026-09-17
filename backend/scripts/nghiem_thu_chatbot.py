@@ -31,7 +31,7 @@ import uuid
 from pathlib import Path
 
 import app  # noqa: F401  — đặt stdout về UTF-8 để in được tiếng Việt
-from app.conversation.fallback_messages import ALL_FALLBACKS, RATE_LIMITED
+from app.conversation.fallback_messages import RATE_LIMITED, looks_like_refusal
 from app.db.database import close_db, init_db
 from app.services.chat_service import process_message
 
@@ -44,25 +44,14 @@ FIXTURE = (
     / "bo_cau_hoi.json"
 )
 
-# Bot có hai cách từ chối: câu dự phòng ghép sẵn (`ALL_FALLBACKS`), và câu do chính
-# mô hình viết ra. Cách thứ hai không mang cờ `is_fallback`, nên phải nhận ra bằng
-# chữ — đây cũng chính là vấn đề đã ghi trong tài liệu: mô hình tự từ chối mà hệ
-# thống không đếm được.
-TU_CHOI = re.compile(
-    r"(website|tài liệu|thông tin|nguồn|dữ liệu)[^.]{0,40}(chưa|không) (cung cấp|có|đề cập|nêu)"
-    r"|(chưa|không) (có|đủ|tìm thấy) (thông tin|dữ liệu|căn cứ)"
-    r"|không thuộc chuyên môn"
-    r"|ngoài phạm vi"
-    # Bot còn từ chối bằng cách nói thẳng là nó không làm được việc đó. Thiếu
-    # nhánh này thì câu "tôi không thể đoán được bạn có đỗ hay không" — một lời
-    # từ chối mẫu mực — bị chấm thành bịa đặt.
-    r"|không thể (đoán|dự đoán|khẳng định|cam kết|bảo đảm|đảm bảo|trả lời)",
-    re.IGNORECASE,
-)
-
-
 def la_tu_choi(answer: str, is_fallback: bool) -> bool:
-    return bool(is_fallback or answer in ALL_FALLBACKS or TU_CHOI.search(answer))
+    """Dùng đúng bộ nhận diện của hệ thống, không định nghĩa lại ở đây.
+
+    Trước đây file này giữ một bản sao của mẫu nhận diện. Hai bản sao thì sớm
+    muộn cũng lệch nhau, và lúc đó bộ nghiệm thu sẽ báo đạt cho đúng thứ mà hệ
+    thống đang đếm sai.
+    """
+    return bool(is_fallback or looks_like_refusal(answer))
 
 
 # Nghỉ giữa các câu để không dồn cục lên dịch vụ. Lưu ý hạn mức gói miễn phí là

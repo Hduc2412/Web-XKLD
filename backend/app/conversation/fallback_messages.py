@@ -4,6 +4,8 @@ Trước đây bốn câu này nằm rải ở `chat_service` và `response_vali
 `analytics_service` phải dò chuỗi để đếm tỷ lệ fallback và chỉ bắt được một
 trong bốn câu. Gom về đây để mọi nơi dùng chung một nguồn.
 """
+import re
+
 from app.core.config import settings
 
 
@@ -42,3 +44,34 @@ RATE_LIMITED = (
 )
 
 ALL_FALLBACKS = (NO_KNOWLEDGE, LEAD_NO_KNOWLEDGE, INVALID_ANSWER, RATE_LIMITED)
+
+
+# Mô hình có cách từ chối riêng của nó, không dùng bốn câu trên. Những câu đó
+# trước đây không được gắn cờ nào cả, nên thống kê đếm chúng như câu trả lời
+# thành công — đo trên dữ liệu thật: 3 câu được gắn cờ, trong khi có thêm 7 câu
+# mô hình tự từ chối mà không ai đếm.
+#
+# Nhận diện bằng chữ là cách duy nhất còn lại: mô hình không trả về tín hiệu nào
+# cho biết nó vừa từ chối. Vì vậy mẫu dưới đây cố ý hẹp — thà bỏ sót một câu từ
+# chối còn hơn gắn nhầm cờ cho một câu trả lời thật, vì cờ này đi thẳng vào con
+# số "tỷ lệ trả lời được" của báo cáo.
+_REFUSAL = re.compile(
+    r"(website|tài liệu|thông tin|nguồn|dữ liệu)[^.]{0,40}(chưa|không) (cung cấp|có|đề cập|nêu)"
+    r"|(chưa|không) (có|đủ|tìm thấy) (thông tin|dữ liệu|căn cứ)"
+    r"|không thuộc chuyên môn"
+    r"|ngoài phạm vi"
+    r"|không thể (đoán|dự đoán|khẳng định|cam kết|bảo đảm|đảm bảo|trả lời)",
+    re.IGNORECASE,
+)
+
+
+def looks_like_refusal(answer: str) -> bool:
+    """Câu này có phải là một lời từ chối không, dù do mô hình tự viết ra.
+
+    Dùng chung cho `chat_service` (để gắn cờ) và bộ nghiệm thu (để chấm điểm).
+    Hai nơi tự định nghĩa riêng thì sớm muộn sẽ lệch nhau, và lúc đó bộ nghiệm
+    thu sẽ báo đạt cho đúng thứ mà hệ thống đang đếm sai.
+    """
+    if not answer:
+        return False
+    return answer in ALL_FALLBACKS or bool(_REFUSAL.search(answer))
