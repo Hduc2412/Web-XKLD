@@ -103,6 +103,35 @@ svg {
 
 /* Người bật chế độ giảm chuyển động thường vì chóng mặt hoặc rối loạn tiền đình.
    Tắt hẳn thay vì làm chậm lại. */
+/* Hai chuyển động dưới đây gọi qua thuộc tính `style` trong
+   `components/site/PhotoBackdrop.tsx`, không qua lớp `animate-*`. Tailwind chỉ
+   sinh keyframes khi thấy lớp tương ứng trong mã, nên để trong `tailwind.config.ts`
+   thì chúng bị cắt bỏ lúc dựng và ảnh nền đứng im — mà nhìn thì tưởng lỗi CSS.
+   Khai báo thẳng ở đây để chúng luôn tồn tại. */
+@keyframes kenburns {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.14) translate3d(-2%, -1.5%, 0);
+  }
+}
+
+@keyframes crossfade {
+  0%,
+  1% {
+    opacity: 0;
+  }
+  7%,
+  29% {
+    opacity: 1;
+  }
+  35%,
+  100% {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

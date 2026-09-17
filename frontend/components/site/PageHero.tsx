@@ -1,4 +1,4 @@
-import AnimatedBackground from "@/components/site/AnimatedBackground";
+import PhotoBackdrop from "@/components/site/PhotoBackdrop";
 import { Container } from "@/components/ui/primitives";
 
 /** Đầu trang dùng chung cho các trang nội dung, để chúng trông cùng một bộ. */
@@ -15,7 +15,7 @@ export default function PageHero({
 }) {
   return (
     <section className="relative overflow-hidden border-b border-slate-100">
-      <AnimatedBackground variant="soft" petals={false} />
+      <PhotoBackdrop variant="soft" />
       <Container className="relative py-12 md:py-16">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">
           {eyebrow}

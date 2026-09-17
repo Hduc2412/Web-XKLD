@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AnimatedBackground from "@/components/site/AnimatedBackground";
+import PhotoBackdrop from "@/components/site/PhotoBackdrop";
 import JobOrderCard from "@/components/site/JobOrderCard";
 import {
   Accordion,
@@ -23,7 +24,7 @@ export default async function HomePage() {
     <>
       {/* --- Mở đầu --- */}
       <section className="relative overflow-hidden">
-        <AnimatedBackground variant="hero" />
+        <PhotoBackdrop variant="hero" />
         <Container className="relative py-16 md:py-24">
           <div className="max-w-3xl">
             <Badge tone="brand">Chương trình điều dưỡng và hộ lý Nhật Bản</Badge>

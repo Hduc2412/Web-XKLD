@@ -74,6 +74,30 @@ export default function SiteFooter() {
             gian trên trang mang tính tham khảo và được nhân viên tư vấn xác nhận
             lại theo từng trường hợp.
           </p>
+          {/* Hai trong ba ảnh nền dùng giấy phép bắt buộc ghi công. Dùng mà
+              không ghi là vi phạm, nên dòng này không được bỏ. Chi tiết đầy đủ
+              ở `public/nen/NGUON.md`. */}
+          <p className="mt-3">
+            Ảnh nền núi Phú Sĩ:{" "}
+            <a
+              href="https://commons.wikimedia.org/wiki/File:Mount_Fuji_April_Cherry_Blossom.jpg"
+              className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              SRP1998
+            </a>{" "}
+            (CC BY-SA 4.0),{" "}
+            <a
+              href="https://commons.wikimedia.org/wiki/File:Lake_Kawaguchiko_Sakura_Mount_Fuji_4.JPG"
+              className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Midori
+            </a>{" "}
+            (CC BY 3.0), Romain Guy (CC0) — qua Wikimedia Commons.
+          </p>
           <p className="mt-3">
             © {new Date().getFullYear()} {COMPANY.legalName}
           </p>
