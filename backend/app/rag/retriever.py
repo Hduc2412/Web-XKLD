@@ -5,7 +5,27 @@ from qdrant_client.http.exceptions import ResponseHandlingException, UnexpectedR
 from app.rag.taxonomy import infer_topic
 
 TOP_K = 5
-MIN_RETRIEVAL_SCORE = settings.min_retrieval_score
+
+# Sàn tuyệt đối: đoạn hợp nhất mà không vượt mức này thì coi như kho tri thức
+# không có nội dung, và hệ thống từ chối. Đây là thứ chặn câu ngoài phạm vi.
+#
+# Đo trên kho hiện tại: câu ngoài phạm vi có đoạn đầu ở 0,56–0,59 ("giá bitcoin
+# hôm nay", "thời tiết Tokyo"), câu trong phạm vi ở 0,66–0,73. Sàn đặt ở 0,62 —
+# giữa hai vùng đó. Con số này **suy ra từ đúng kho tri thức hiện tại**; kho đổi
+# nhiều thì phải đo lại, đừng coi nó là hằng số của tự nhiên.
+MIN_TOP_SCORE = settings.min_retrieval_score
+
+# Dải tương đối: giữ những đoạn không thấp hơn đoạn đầu quá chừng này.
+#
+# Thay cho ngưỡng tuyệt đối cũ (0,65). Điểm của cả kho nằm gọn trong khoảng hẹp
+# 0,56–0,73, nên một con số cố định cắt ngang giữa dải đó rất tùy tiện: cùng một
+# câu hỏi, viết có dấu thì đoạn đúng được 0,72 và lọt, viết không dấu thì còn
+# 0,64 và bị loại. Ca thật: "Quy trình đóng phí đơn điều dưỡng như thế nào?" —
+# kho có đúng bài tên như vậy, nhưng gõ không dấu thì bài đó xếp hạng ba với
+# 0,6423 và bị ngưỡng 0,65 cắt mất, nên bot trả lời là không có thông tin.
+#
+# So với đoạn đầu thì không còn phụ thuộc vào mức điểm tuyệt đối nữa.
+RELATIVE_BAND = 0.06
 
 # Giữ lại để tầng trên và phần thống kê còn biết mỗi ý định thuộc nhóm chủ đề
 # nào. Không còn dùng để lọc hay để xếp hạng — lý do ở docstring của `search`.
@@ -34,6 +54,28 @@ def _topic_of(hit) -> str:
         )
         hit.payload["topic"] = topic
     return topic
+
+
+def select(points: list) -> list:
+    """Chọn những đoạn đem vào ngữ cảnh, theo hai điều kiện đi cùng nhau.
+
+    1. **Sàn tuyệt đối** — đoạn đầu phải vượt `MIN_TOP_SCORE`, nếu không thì trả
+       về rỗng và tầng trên sẽ từ chối.
+    2. **Dải tương đối** — giữ các đoạn không thấp hơn đoạn đầu quá `RELATIVE_BAND`.
+
+    Phải có **cả hai**. Chỉ dùng dải tương đối thì câu ngoài phạm vi cũng lọt:
+    hỏi "giá bitcoin hôm nay", tám đoạn đầu chênh nhau chưa tới 0,002 điểm, nên
+    dải tương đối giữ lại cả tám và đưa cho mô hình một đống bài về xuất khẩu lao
+    động để nó xoay xở — đúng tình huống dễ sinh ra câu bịa nhất.
+
+    Hàm tách riêng và thuần để kiểm thử được mà không cần Qdrant lẫn mạng.
+    """
+    if not points:
+        return []
+    top = points[0].score
+    if top < MIN_TOP_SCORE:
+        return []
+    return [point for point in points if point.score >= top - RELATIVE_BAND]
 
 
 def search(query: str, intent: str = "chung") -> list:
@@ -72,7 +114,7 @@ def search(query: str, intent: str = "chung") -> list:
         print(f"[Qdrant] Search failed: {exc}")
         return []
 
-    hits = [hit for hit in points if hit.score >= MIN_RETRIEVAL_SCORE]
+    hits = select(points)
     for hit in hits:
         _topic_of(hit)
 

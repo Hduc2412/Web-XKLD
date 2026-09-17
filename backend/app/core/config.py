@@ -43,7 +43,9 @@ class Settings(BaseSettings):
     mongodb_db_name: str = "xkld_chatbot"
     qdrant_url: str = "http://localhost:6333"
     qdrant_collection_name: str = "xkld_knowledge"
-    min_retrieval_score: float = 0.65
+    # Sàn tuyệt đối cho đoạn hợp nhất. Hạ từ 0,65 xuống 0,62 sau khi đo: 0,65
+    # cắt mất cả những đoạn đúng (xem `app/rag/retriever.py`).
+    min_retrieval_score: float = 0.62
 
     # Số hotline công ty. Trước đây hard-code ở 4 nơi (validator, prompt, chat
     # service); đổi số mà sót một chỗ là chatbot đọc sai số cho khách.
