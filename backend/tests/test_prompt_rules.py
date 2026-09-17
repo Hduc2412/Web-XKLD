@@ -63,6 +63,32 @@ class BaQuyTacSinhTuLoiThatTests(unittest.TestCase):
         self.assertIn("Chỉ dùng THÔNG TIN TỪ TÀI LIỆU", self.prompt)
 
 
+class NoiGiamKhiTinKhongVuiTests(unittest.TestCase):
+    """Cấm phán quyết thôi chưa đủ — phải dạy mô hình nói thế nào cho đúng mực.
+
+    Người hỏi có thể vừa biết mình mang bệnh, hoặc đang lo mình quá tuổi. Một câu
+    máy móc kiểu "bạn sẽ trượt" là thứ không ai nên nhận từ một cái máy, kể cả khi
+    nội dung của nó đúng với tài liệu.
+    """
+
+    def setUp(self):
+        self.prompt = build_prompt("nội dung tài liệu", "câu hỏi của khách")
+
+    def test_co_vi_du_cach_noi_nen_dung(self):
+        self.assertIn("chưa phù hợp với trường hợp này", self.prompt)
+
+    def test_liet_ke_ro_nhung_cau_khong_duoc_viet(self):
+        for cấm in ("bạn sẽ trượt", "bạn bị loại", "bạn không đủ điều kiện"):
+            with self.subTest(cấm=cấm):
+                self.assertIn(cấm, self.prompt)
+
+    def test_cam_tu_ngu_phan_xet_ve_nguoi(self):
+        self.assertIn("Không dùng từ mang tính phán xét về người", self.prompt)
+
+    def test_luon_de_ngo_buoc_tiep_theo(self):
+        self.assertIn("luôn mời trao đổi với nhân viên", self.prompt)
+
+
 class CauTrucPromptTests(unittest.TestCase):
     def test_co_ca_ngu_canh_va_cau_hoi(self):
         prompt = build_prompt("ĐOẠN TÀI LIỆU", "CÂU HỎI CỦA KHÁCH")

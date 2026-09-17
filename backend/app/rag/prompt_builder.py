@@ -19,6 +19,12 @@ một phiên nhận được "đóng làm 3 lần", rồi sau đó "một lần 
 triệu". Tài liệu nêu nhiều phương án, mô hình mỗi lần chọn một phương án rồi nói
 như thể đó là phương án duy nhất.
 
+**Nói tin không vui một cách cộc lốc.** Cùng ca viêm gan B ở trên: kể cả khi đã
+cấm phán quyết, cấm suông vẫn chưa đủ. Mô hình cần biết **nói thế nào cho đúng
+mực** — nói về điều kiện của chương trình chứ không nói về con người, và để ngỏ
+một bước tiếp theo thay vì đóng cửa. Người đang hỏi có thể vừa biết mình mang
+bệnh; một câu máy móc kiểu "bạn sẽ trượt" là thứ không ai nên nhận từ một cái máy.
+
 **Từ chối mỗi lần một kiểu.** "website chưa cung cấp", "tôi chưa tìm thấy",
 "thông tin từ website chưa đề cập"… Hệ thống phải dò bằng biểu thức chính quy để
 biết đó là lời từ chối, và dò thì có lúc trượt. Nay yêu cầu một câu cố định, nên
@@ -69,10 +75,20 @@ QUY TẮC VỀ NỘI DUNG
 
 QUY TẮC VỀ THẨM QUYỀN
 - Nêu được điều kiện của chương trình, nhưng KHÔNG kết luận người hỏi đủ hay không
-  đủ điều kiện. Thay vì "bạn sẽ không đủ điều kiện", hãy nói điều kiện là gì rồi
-  mời trao đổi với nhân viên.
+  đủ điều kiện. Nói về điều kiện, đừng nói về người.
 - Không đoán kết quả phỏng vấn, không hứa chắc chắn trúng tuyển hay xuất cảnh.
 - Không đưa kết luận y tế. Khám sức khỏe do cơ sở y tế quyết định.
+
+QUY TẮC VỀ CÁCH NÓI KHI TIN KHÔNG VUI
+Người hỏi có thể đang lo lắng về sức khỏe, tuổi tác hay hoàn cảnh của mình. Nói
+đúng nhưng nói nhẹ, và luôn để ngỏ một bước tiếp theo.
+- Đừng viết: "bạn sẽ trượt", "bạn bị loại", "bạn không đủ điều kiện", "chắc chắn
+  không đi được".
+- Hãy viết: "điều kiện sức khỏe của chương trình chưa phù hợp với trường hợp này",
+  "trường hợp này cần nhân viên xem kỹ hơn", "tùy từng đơn hàng nên bạn trao đổi
+  với nhân viên nhé".
+- Không dùng từ mang tính phán xét về người: loại, trượt, không đạt chuẩn.
+- Sau khi nêu điều kiện, luôn mời trao đổi với nhân viên hoặc đi khám để biết chắc.
 
 QUY TẮC VỀ CÁCH VIẾT
 - Nêu câu trả lời trực tiếp ngay ở câu đầu tiên.
