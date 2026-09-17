@@ -181,15 +181,29 @@ chắc chắn nhất để chúng lệch nhau sau vài lần sửa.
 ]
 ```
 
-### Sẽ có, theo đúng thứ tự này
+### Luồng ứng viên — cũng đã chạy
+
+Bảng này trước đây ghi là "sẽ có". Cả năm phần đều đã dựng xong, và **đường dẫn
+thật khác với bản dự kiến cũ**: mọi endpoint đều mang mã phiên trên đường dẫn,
+không có bản không tham số. Viết theo bảng cũ là gọi vào 404.
 
 | Method | Đường dẫn | Mục đích |
 |---|---|---|
-| POST | `/public/documents` | Ứng viên gửi CV, trả về ngay, xử lý nền |
-| GET | `/public/documents/{code}` | Theo dõi tiến trình đọc CV |
-| GET/PATCH | `/public/profiles/{session_id}` | Xem và xác nhận hồ sơ đã bóc tách |
+| GET | `/public/profiles/meta` | Danh mục cho biểu mẫu: mức tiếng Nhật, bằng cấp, 47 tỉnh, vùng |
+| POST | `/public/profiles` | Tạo hồ sơ, `session_id` nằm trong thân yêu cầu |
+| GET/PATCH | `/public/profiles/{session_id}` | Xem và sửa hồ sơ |
+| POST | `/public/profiles/{session_id}/confirm` | Ứng viên xác nhận hồ sơ đúng |
+| POST | `/public/documents/{session_id}` | Gửi CV (multipart, khóa `file`), trả về ngay, xử lý nền |
+| GET | `/public/documents/{session_id}` | Theo dõi tiến trình đọc CV của phiên |
 | GET | `/public/matches/{session_id}` | Đơn phù hợp kèm lý do từng tiêu chí |
-| POST | `/public/registrations` | Ứng viên xác nhận chọn đơn, tạo đăng ký sơ bộ |
+| GET | `/public/matches/{session_id}/orders/{code}` | Lý do chi tiết cho đúng một đơn |
+| POST | `/public/registrations/{session_id}` | Ứng viên chọn đơn, tạo đăng ký sơ bộ |
+| GET | `/public/registrations/{session_id}` | Ứng viên xem lại mình đã đăng ký đơn nào |
+
+Hai chốt chặn không đi vòng được: `/public/matches` trả **409** nếu hồ sơ chưa
+xác nhận, và `/public/registrations` chỉ nhận đơn nằm trong danh sách vừa được
+giới thiệu cho chính phiên đó. Cả hai là để không có đăng ký nào sinh ra từ suy
+đoán của mô hình.
 
 ---
 
