@@ -37,6 +37,7 @@ export const OFFICES = [
 
 export const NAV = [
   { href: "/gioi-thieu", label: "Giới thiệu" },
+  { href: "/he-thong", label: "Hệ thống" },
   { href: "/dieu-kien", label: "Điều kiện" },
   { href: "/chi-phi", label: "Chi phí" },
   { href: "/quy-trinh", label: "Quy trình" },

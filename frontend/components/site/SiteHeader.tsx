@@ -35,23 +35,23 @@ export default function SiteHeader() {
             DC
           </span>
           <span className="leading-tight">
-            <span className="block text-sm font-bold text-slate-900">
+            <span className="block whitespace-nowrap text-sm font-bold text-slate-900">
               {COMPANY.shortName}
             </span>
-            <span className="block text-[11px] text-slate-500">
+            <span className="block whitespace-nowrap text-[11px] text-slate-500">
               {COMPANY.tagline}
             </span>
           </span>
         </Link>
 
-        <nav className="ml-auto hidden items-center gap-1 lg:flex">
+        <nav className="ml-auto hidden items-center gap-1 xl:flex">
           {NAV.map((item) => {
             const active = pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-lg px-3 py-2 text-sm transition-colors ${
+                className={`whitespace-nowrap rounded-lg px-2.5 py-2 text-sm transition-colors ${
                   active
                     ? "font-semibold text-brand-700"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -65,7 +65,7 @@ export default function SiteHeader() {
 
         <a
           href={COMPANY.hotlineHref}
-          className="ml-auto hidden rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lift transition-colors hover:bg-brand-700 lg:ml-0 lg:inline-flex"
+          className="ml-auto hidden rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lift transition-colors hover:bg-brand-700 xl:ml-0 xl:inline-flex"
         >
           {COMPANY.hotline}
         </a>
@@ -74,14 +74,14 @@ export default function SiteHeader() {
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
           aria-label={open ? "Đóng menu" : "Mở menu"}
-          className="ml-auto flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-700 lg:hidden"
+          className="ml-auto flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-700 xl:hidden"
         >
           <span className="text-lg">{open ? "✕" : "☰"}</span>
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-slate-200 bg-white lg:hidden">
+        <div className="border-t border-slate-200 bg-white xl:hidden">
           <nav className="mx-auto grid w-full max-w-container gap-1 px-4 py-3 sm:px-6">
             {NAV.map((item) => (
               <Link
