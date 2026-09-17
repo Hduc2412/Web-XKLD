@@ -96,12 +96,15 @@ export default function PhotoBackdrop({ variant = "hero" }: { variant?: Variant 
         className={
           isDark
             ? "absolute inset-0 bg-ink-900/70"
-            : "absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-white/35 md:from-white/92 md:via-white/62 md:to-transparent"
+            : "absolute inset-0 bg-gradient-to-r from-white/95 via-white/82 to-white/40 md:from-white/94 md:via-white/78 md:to-white/12"
         }
       />
-      {/* Chuyển mềm xuống phần nội dung bên dưới, tránh đường cắt ngang gắt. */}
+      {/* Chuyển mềm xuống phần nội dung bên dưới, tránh đường cắt ngang gắt.
+          Thấp hơn hẳn ở đầu trang con: khối đó chỉ cao chừng 290px, nên dải mờ
+          112px như ở trang chủ sẽ nuốt hơn một phần ba tấm ảnh và đẩy dải sóng
+          ra nằm lửng lơ trên nền trắng. */}
       <div
-        className={`absolute inset-x-0 bottom-0 h-28 ${
+        className={`absolute inset-x-0 bottom-0 ${isSoft ? "h-10" : "h-28"} ${
           isDark ? "bg-gradient-to-t from-ink-900" : "bg-gradient-to-t from-white"
         }`}
       />

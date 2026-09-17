@@ -1,11 +1,11 @@
 import { Button, Container } from "@/components/ui/primitives";
-import AnimatedBackground from "@/components/site/AnimatedBackground";
+import PhotoBackdrop from "@/components/site/PhotoBackdrop";
 import { COMPANY } from "@/content/site";
 
 export default function NotFound() {
   return (
     <section className="relative overflow-hidden">
-      <AnimatedBackground variant="soft" />
+      <PhotoBackdrop variant="soft" />
       <Container className="relative py-24 text-center">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-600">
           Không tìm thấy

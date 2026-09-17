@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import AnimatedBackground from "@/components/site/AnimatedBackground";
+import PhotoBackdrop from "@/components/site/PhotoBackdrop";
 import JobOrderCard from "@/components/site/JobOrderCard";
 import {
   Badge,
@@ -105,7 +105,7 @@ export default async function JobOrderDetailPage({
   return (
     <>
       <section className="relative overflow-hidden border-b border-slate-100">
-        <AnimatedBackground variant="soft" petals={false} />
+        <PhotoBackdrop variant="soft" />
         <Container className="relative py-10 md:py-14">
           <Link
             href="/don-hang"
