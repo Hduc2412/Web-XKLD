@@ -22,9 +22,11 @@ from app.api.profiles import (
     create_profile,
     get_profile,
     patch_profile,
+    admin_profile_meta,
     profile_detail,
     profile_meta,
     profiles,
+    router,
     update_profile,
 )
 from app.core.timeutil import local_today
@@ -391,6 +393,28 @@ class StaffProfileApiTests(unittest.IsolatedAsyncioTestCase):
             )
         self.assertEqual(result["fields"]["japanese_level"]["source"], "staff")
         self.assertEqual(audit.await_args.kwargs["details"]["changed_fields"], ["japanese_level"])
+
+    async def test_the_staff_form_reads_the_same_catalog_as_the_candidate_form(self):
+        """Hai biểu mẫu ghi vào cùng những trường, nên phải thấy cùng lựa chọn.
+
+        Hai bản danh mục chép tay sẽ lệch nhau ngay lần đầu thêm một mức tiếng
+        Nhật, và nhân viên sẽ không nhập được đúng thứ ứng viên chọn.
+        """
+        self.assertEqual(await admin_profile_meta(), await profile_meta())
+
+    def test_profiles_meta_does_not_fall_into_the_code_route(self):
+        """`/profiles/meta` phải khớp handler danh mục, không phải `/{code}`.
+
+        FastAPI khớp theo thứ tự khai báo. Đặt `/meta` sau `/{code}` thì mọi lần
+        mở biểu mẫu sửa hồ sơ đều nhận 404 "không tìm thấy hồ sơ", và lỗi ấy đọc
+        như dữ liệu hỏng chứ không như một route đặt nhầm chỗ.
+        """
+        matched = next(
+            route
+            for route in router.routes
+            if route.path_regex.match("/profiles/meta") and "GET" in route.methods
+        )
+        self.assertEqual(matched.endpoint, admin_profile_meta)
 
     async def test_assigning_an_unknown_profile_gives_404(self):
         with patch("app.api.profiles.validate_assignee", new=AsyncMock(return_value=None)), patch.object(

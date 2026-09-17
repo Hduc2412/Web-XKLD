@@ -292,6 +292,23 @@ export interface CandidateProfile {
   updated_at: string;
 }
 
+/** Danh mục cho biểu mẫu sửa hồ sơ. Cùng nguồn với biểu mẫu của ứng viên. */
+export interface CandidateProfileMeta {
+  japanese_levels: CatalogOption[];
+  education_levels: CatalogOption[];
+  employer_types: CatalogOption[];
+  regions: CatalogOption[];
+  prefectures: PrefectureOption[];
+  genders: CatalogOption[];
+  required_fields: string[];
+}
+
+export interface CandidateProfilePatch {
+  fields?: Record<string, unknown>;
+  preferences?: Record<string, unknown>;
+  expected_version: number;
+}
+
 export interface CandidateDocument {
   code: string;
   session_id: string;
@@ -449,6 +466,39 @@ export interface RecommendationLog extends RecommendationLogSummary {
   application_code: string | null;
 }
 
+/**
+ * Rút một câu tiếng Việt đọc được ra khỏi phần `detail` của máy chủ.
+ *
+ * FastAPI trả `detail` ở ba hình dạng: chuỗi (lỗi ta tự ném), **mảng** lỗi từng
+ * trường khi dữ liệu vào không hợp lệ (422), và đôi khi là đối tượng có khóa
+ * `message`. Ném thẳng hai dạng sau vào `new Error` cho ra "[object Object]" —
+ * người nhập liệu thấy đúng chừng ấy và không biết ô nào sai.
+ */
+function detailMessage(payload: unknown, fallback: string): string {
+  const detail = (payload as { detail?: unknown } | null)?.detail;
+  if (typeof detail === "string") return detail;
+
+  if (Array.isArray(detail)) {
+    const lines = detail
+      .map((item) => {
+        const where = Array.isArray(item?.loc)
+          ? item.loc.filter((part: unknown) => part !== "body").join(" › ")
+          : "";
+        const what = String(item?.msg ?? "").replace(/^Value error, /, "");
+        if (!what) return "";
+        return where ? `${where}: ${what}` : what;
+      })
+      .filter(Boolean);
+    if (lines.length > 0) return lines.join("; ");
+  }
+
+  if (detail && typeof detail === "object") {
+    const message = (detail as { message?: unknown }).message;
+    if (typeof message === "string") return message;
+  }
+  return fallback;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${BACKEND_URL}${path}`, {
     ...options,
@@ -464,7 +514,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
       if (typeof window !== "undefined") window.location.href = "/login";
     }
     const payload = await response.json().catch(() => null);
-    throw new Error(payload?.detail || "Không thể kết nối hệ thống.");
+    throw new Error(detailMessage(payload, "Không thể kết nối hệ thống."));
   }
   return response.json();
 }
@@ -486,7 +536,7 @@ async function requestForm<T>(path: string, body: FormData): Promise<T> {
       window.location.href = "/login";
     }
     const payload = await response.json().catch(() => null);
-    throw new Error(payload?.detail || "Không thể tải file lên hệ thống.");
+    throw new Error(detailMessage(payload, "Không thể tải file lên hệ thống."));
   }
   return response.json();
 }
@@ -722,6 +772,17 @@ export const managementApi = {
   },
   candidateProfile: (code: string) =>
     request<CandidateProfile>(`/profiles/${encodeURIComponent(code)}`),
+  candidateProfileMeta: () => request<CandidateProfileMeta>("/profiles/meta"),
+  /**
+   * Sửa hồ sơ. `expected_version` là bắt buộc chứ không tùy chọn: hai nhân viên
+   * mở cùng một hồ sơ là chuyện thường, và không có nó thì người lưu sau lặng
+   * lẽ xóa mất phần người lưu trước vừa sửa. Sai phiên bản thì máy chủ trả 409.
+   */
+  updateCandidateProfile: (code: string, patch: CandidateProfilePatch) =>
+    request<CandidateProfile>(`/profiles/${encodeURIComponent(code)}`, {
+      method: "PATCH",
+      body: JSON.stringify(patch),
+    }),
   assignCandidateProfile: (code: string, assignedTo: string | null) =>
     request<CandidateProfile>(`/profiles/${encodeURIComponent(code)}/assignment`, {
       method: "PATCH",

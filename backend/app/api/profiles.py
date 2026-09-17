@@ -233,9 +233,13 @@ async def _apply(
 # --- Endpoint công khai ---
 
 
-@public_router.get("/meta")
-async def profile_meta():
-    """Danh mục cho biểu mẫu nhập hồ sơ."""
+def _meta_payload() -> dict[str, Any]:
+    """Danh mục cho biểu mẫu nhập hồ sơ.
+
+    Một hàm cho cả hai router. Biểu mẫu của ứng viên và biểu mẫu của nhân viên
+    ghi vào đúng những trường ấy, nên chúng phải nhìn thấy đúng một danh sách
+    lựa chọn; hai bản chép tay sẽ lệch nhau ngay lần đầu thêm một mức tiếng Nhật.
+    """
     meta = catalog.catalog_meta()
     return {
         "japanese_levels": meta["japanese_levels"],
@@ -246,6 +250,11 @@ async def profile_meta():
         "genders": catalog.label_options(catalog.GENDER_LABELS),
         "required_fields": list(store.REQUIRED_FOR_CONFIRM),
     }
+
+
+@public_router.get("/meta")
+async def profile_meta():
+    return _meta_payload()
 
 
 @public_router.post("", status_code=201)
@@ -351,6 +360,16 @@ async def profiles(
         assigned_to = current_user["email"]
     query = store.build_query(status=status, assigned_to=assigned_to, lead_code=lead_code)
     return [_decorate(profile) for profile in await store.list_profiles(query, limit=limit)]
+
+
+@router.get("/meta")
+async def admin_profile_meta():
+    """Danh mục cho biểu mẫu sửa hồ sơ bên quản trị.
+
+    Phải khai trước `/{code}`: FastAPI khớp theo thứ tự khai báo, đặt sau thì
+    `/profiles/meta` rơi vào `/{code}` và trả 404 "không tìm thấy hồ sơ".
+    """
+    return _meta_payload()
 
 
 @router.get("/{code}")
