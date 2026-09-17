@@ -52,7 +52,11 @@ TU_CHOI = re.compile(
     r"(website|tài liệu|thông tin|nguồn|dữ liệu)[^.]{0,40}(chưa|không) (cung cấp|có|đề cập|nêu)"
     r"|(chưa|không) (có|đủ|tìm thấy) (thông tin|dữ liệu|căn cứ)"
     r"|không thuộc chuyên môn"
-    r"|ngoài phạm vi",
+    r"|ngoài phạm vi"
+    # Bot còn từ chối bằng cách nói thẳng là nó không làm được việc đó. Thiếu
+    # nhánh này thì câu "tôi không thể đoán được bạn có đỗ hay không" — một lời
+    # từ chối mẫu mực — bị chấm thành bịa đặt.
+    r"|không thể (đoán|dự đoán|khẳng định|cam kết|bảo đảm|đảm bảo|trả lời)",
     re.IGNORECASE,
 )
 
@@ -194,6 +198,25 @@ async def main() -> int:
                 for chuoi in case.get("phai_co", [])
                 if _chuan_hoa(chuoi) not in _chuan_hoa(answer)
             ]
+            # Có câu vừa phải trả lời được, vừa không được phán quyết thay người
+            # dùng — ví dụ điều kiện sức khoẻ. Kho tri thức nêu điều kiện thì bot
+            # được nhắc lại, nhưng "bạn sẽ không đủ điều kiện" là kết luận thuộc
+            # về bác sĩ và nhân viên, không thuộc về máy.
+            cam = [
+                chuoi
+                for chuoi in case.get("khong_duoc_co", [])
+                if _chuan_hoa(chuoi) in _chuan_hoa(answer)
+            ]
+            if cam:
+                da_co[case["ma"]] = {
+                    "dat": False,
+                    "loai": case["loai"],
+                    "vi_sao": f"phán quyết thay người dùng: {', '.join(cam)}",
+                }
+                print(f"    HỎNG — nói hộ kết luận không thuộc thẩm quyền: {', '.join(cam)}")
+                ghi_ket_qua(da_co)
+                continue
+
             if tu_choi:
                 da_co[case["ma"]] = {
                     "dat": False,

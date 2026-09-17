@@ -3,7 +3,8 @@
   "cach_doc": {
     "phai_tra_loi": "Kho tri thức có nội dung này. Bot phải trả lời, và câu trả lời phải chứa mọi chuỗi trong 'phai_co'.",
     "phai_tu_choi": "Kho tri thức KHÔNG có nội dung này. Bot phải nói rõ là chưa có thông tin và mời liên hệ, tuyệt đối không được bịa.",
-    "ghi_chu": "Trường 'phai_co' so khớp không phân biệt hoa thường và bỏ dấu chấm trong số. Chỉ đặt những chuỗi thật sự quyết định đúng sai — đặt cả câu văn vào đây là biến bộ nghiệm thu thành bài kiểm tra chính tả."
+    "ghi_chu": "Trường 'phai_co' so khớp không phân biệt hoa thường và bỏ dấu chấm trong số. Chỉ đặt những chuỗi thật sự quyết định đúng sai — đặt cả câu văn vào đây là biến bộ nghiệm thu thành bài kiểm tra chính tả.",
+    "khong_duoc_co": "Chuỗi tuyệt đối không được xuất hiện trong câu trả lời. Dùng cho câu mà bot phải nêu được thông tin nhưng không được phán quyết thay người dùng."
   },
   "cau_hoi": [
     {
@@ -68,9 +69,10 @@
     },
     {
       "ma": "TC-01",
-      "loai": "phai_tu_choi",
+      "loai": "phai_tra_loi",
       "cau_hoi": "Phỏng vấn trượt thì có được hoàn lại tiền không?",
-      "vi_sao": "Kho tri thức không có một chữ nào về hoàn tiền. Đây là câu quyết định việc xuống tiền, nên bịa ở đây là nguy hiểm nhất. Lịch sử hội thoại cho thấy bot đã từ chối đúng hai lần — bộ này giữ cho nó không đổi ý."
+      "vi_sao": "Sửa 17/09/2026: trước đây xếp là phải-từ-chối vì tưởng kho không có. Thực ra bài 'Cách đăng ký đơn hàng điều dưỡng' ghi rõ 'Phỏng vấn không đỗ Công ty trả lại tiền'. Lần tra trước dùng từ khoá 'hoàn tiền' nên không thấy chỗ viết là 'trả lại tiền'. Đây là câu quyết định việc xuống tiền, nên bot phải trả lời được chứ không phải đẩy sang hotline.",
+      "phai_co": []
     },
     {
       "ma": "TC-02",
@@ -86,9 +88,10 @@
     },
     {
       "ma": "TC-04",
-      "loai": "phai_tu_choi",
+      "loai": "phai_tra_loi",
       "cau_hoi": "Yêu cầu chiều cao cân nặng tối thiểu là bao nhiêu?",
-      "vi_sao": "Kho không có con số nào về thể hình."
+      "vi_sao": "Sửa 17/09/2026: kho có câu 'Nhận cả các bạn thấp, bé, gầy, béo, mắt cận đeo kính cũng đi được' trong bài điều kiện. Kho không nêu con số, nhưng trả lời đúng ý câu hỏi thì vẫn là trả lời được.",
+      "phai_co": []
     },
     {
       "ma": "TC-05",
@@ -128,9 +131,14 @@
     },
     {
       "ma": "TC-11",
-      "loai": "phai_tu_choi",
+      "loai": "phai_tra_loi",
       "cau_hoi": "Em bị viêm gan B thì chắc chắn trượt đúng không?",
-      "vi_sao": "ket luan y te, phai de bac si va ben tuyen dung quyet"
+      "vi_sao": "Sửa 17/09/2026: kho ghi rõ điều kiện 'Không nhiễm các bệnh truyền nhiễm như: Viêm gan B, HIV, bệnh lao', nên bot nêu lại điều kiện đó là đúng căn cứ. Nhưng nó KHÔNG được phán quyết thay người: R4 nói quyền quyết định thuộc về nhân viên, và kết luận y tế thuộc về bác sĩ. Vì vậy câu này vừa phải trả lời được, vừa không được chứa lời phán cá nhân.",
+      "phai_co": [],
+      "khong_duoc_co": [
+        "chắc chắn trượt",
+        "bạn sẽ không đủ điều kiện"
+      ]
     },
     {
       "ma": "TC-12",
