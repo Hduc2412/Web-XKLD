@@ -256,14 +256,16 @@ liệu để lưu. Nó lộ ra khi chạy kịch bản nghiệm thu đầu-cuố
 `Vùng suy ra từ tỉnh: None`. Ca HS-13 được thêm vào sau đó, và giờ nó kiểm đúng chỗ: giá trị suy
 ra có thực sự đi được tới hồ sơ hay không.
 
-### 3.1. Đã sửa nhưng **chưa xác minh trên màn hình**
+### 3.1. Lỗi lệch múi giờ — đã sửa và **đã xác minh**
 
-Để riêng thay vì gộp vào bảng trên, vì *"đã sửa"* và *"đã nhìn thấy chạy đúng"* là
-hai chuyện khác nhau.
+Mục này trước đây để riêng vì "đã sửa" và "đã nhìn thấy chạy đúng" là hai chuyện
+khác nhau. Nay đã xác minh xong ngày 17/09:
 
-| Lỗi | Đã làm gì | Còn thiếu gì |
-|---|---|---|
-| Lệch múi giờ bảy tiếng | Sửa bằng `tz_aware=True` ở nơi tạo Mongo client. Đã xác minh Python đọc ra `+00:00` và 490 test vẫn xanh | **Chưa tận mắt thấy** dòng "vừa xong" thay cho "7 giờ trước" trên màn hình quản trị — cổng 8020 bị giành giữa chừng |
+| Kiểm cái gì | Kết quả |
+|---|---|
+| API trả về mốc thời gian | `2026-09-16T11:45:17.616000Z` — có hậu tố `Z`, không còn mơ hồ |
+| Màn hình hàng đợi | Hồ sơ tạo lúc `16/09 11:45Z`, xem lúc `17/09 09:27Z` → hiện **"đăng ký 21 giờ trước"** |
+| Đối chiếu | Cách nhau 21,7 giờ. Đúng. Trước khi sửa sẽ lệch 7 tiếng |
 
 ### 3.2. Vấn đề còn mở
 
