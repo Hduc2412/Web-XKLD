@@ -60,6 +60,27 @@ const config: Config = {
           "90%": { opacity: "1" },
           "100%": { transform: "translate3d(2rem,110vh,0) rotate(240deg)", opacity: "0" },
         },
+        // Cánh hoa vừa rơi vừa dạt ngang, thay vì rơi thẳng như hòn sỏi.
+        // Đường đi hình sin làm nó giống lá rơi trong gió hơn.
+        petal: {
+          '0%':   { transform: 'translate3d(0,-8%,0) rotate(0deg)', opacity: '0' },
+          '8%':   { opacity: '1' },
+          '25%':  { transform: 'translate3d(2.5rem,25vh,0) rotate(90deg)' },
+          '50%':  { transform: 'translate3d(-1.5rem,50vh,0) rotate(180deg)' },
+          '75%':  { transform: 'translate3d(3rem,75vh,0) rotate(270deg)' },
+          '92%':  { opacity: '1' },
+          '100%': { transform: 'translate3d(0,108vh,0) rotate(360deg)', opacity: '0' },
+        },
+        // Mặt trời thở rất khẽ. Biên độ 3 phần trăm, chu kỳ gần một phút.
+        breathe: {
+          '0%,100%': { transform: 'scale(1)', opacity: '0.9' },
+          '50%':     { transform: 'scale(1.03)', opacity: '1' },
+        },
+        // Dải mây trôi ngang, mô típ kasumi trong tranh khắc gỗ.
+        glide: {
+          '0%':   { transform: 'translate3d(-8%,0,0)' },
+          '100%': { transform: 'translate3d(8%,0,0)' },
+        },
         rise: {
           "0%": { opacity: "0", transform: "translate3d(0,12px,0)" },
           "100%": { opacity: "1", transform: "translate3d(0,0,0)" },
@@ -73,6 +94,10 @@ const config: Config = {
         drift: "drift 38s ease-in-out infinite",
         "drift-slow": "drift 56s ease-in-out infinite",
         fall: "fall linear infinite",
+        petal: "petal linear infinite",
+        breathe: "breathe 52s ease-in-out infinite",
+        glide: "glide 70s ease-in-out infinite alternate",
+        "glide-slow": "glide 104s ease-in-out infinite alternate",
         rise: "rise .5s ease-out both",
         sheen: "sheen 6s linear infinite",
       },
