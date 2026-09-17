@@ -23,6 +23,7 @@ load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
 
 # Import từ đúng path sau khi migrate
 from ingestion.image_reader import read_image_content, get_best_image_url
+from app.rag.indexing import text_for_embedding
 from app.rag.taxonomy import infer_topic, normalize_text
 
 # ============================================================
@@ -334,7 +335,7 @@ def run_embedding_pipeline():
             points = []
             post_failed = False
             for i, chunk in enumerate(chunks):
-                enriched_chunk = f"{post['title']}\n{chunk}"
+                enriched_chunk = text_for_embedding(post["title"], chunk)
                 vector = create_embedding(gemini_client, enriched_chunk)
                 if not vector:
                     post_failed = True

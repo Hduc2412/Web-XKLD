@@ -123,11 +123,18 @@ def main() -> None:
             # Vector cũ được tính trên phần chữ còn rác. Bỏ rác mà giữ vector cũ
             # thì việc truy xuất vẫn bị rác chi phối, nên phải nhúng lại.
             from app.llm.gemini import TASK_DOCUMENT, create_embedding
+            from app.rag.indexing import text_for_embedding
 
             # Đoạn tài liệu phải nhúng kiểu DOCUMENT. Bản trước gọi hàm không
             # truyền tham số nên lấy mặc định là QUERY — cả kho tri thức bị nhúng
             # sai không gian, điểm của đoạn đúng thấp đi chừng 0,06 và tụt hạng.
-            fresh = create_embedding(after, task_type=TASK_DOCUMENT)
+            #
+            # Và phải ghép tiêu đề đúng như lúc thu thập. Bản trước chỉ nhúng
+            # thân bài, nên kho có hai loại vector khác nhau nằm lẫn lộn.
+            fresh = create_embedding(
+                text_for_embedding(point.payload.get("title", ""), after),
+                task_type=TASK_DOCUMENT,
+            )
             if not fresh:
                 raise RuntimeError(
                     f"Nhúng lại thất bại ở đoạn {index}/{len(cleaned)} "
