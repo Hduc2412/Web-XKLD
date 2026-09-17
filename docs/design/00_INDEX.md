@@ -23,6 +23,7 @@ xuất khẩu lao động điều dưỡng Nhật Bản.
 | 12 | [Yêu cầu hệ thống](12_YEU_CAU_HE_THONG.md) | Người dùng, yêu cầu chức năng A–F, yêu cầu phi chức năng, những điều hệ thống không làm |
 | 13 | [Phạm vi và trạng thái](13_PHAM_VI_VA_TRANG_THAI.md) | Cơ bản vs nâng cao, đã làm được gì, còn thiếu gì, thứ tự triển khai |
 | 14 | [Nghiệp vụ và giá trị](14_NGHIEP_VU_VA_GIA_TRI.md) | Viết cho người ngoài ngành — câu chuyện thực tế, luồng đi, tác dụng |
+| 17 | [Chính sách tài chính, thời gian, quy trình](17_CHINH_SACH_TAI_CHINH_THOI_GIAN_QUY_TRINH.md) | Gom những gì kho tri thức đã nói về tiền, mốc thời gian và các bước; kèm danh sách câu kho **chưa** trả lời được |
 
 ## Nguyên tắc xuyên suốt
 
