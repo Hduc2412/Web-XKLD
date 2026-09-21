@@ -1,6 +1,6 @@
 # Kiểm thử hệ thống
 
-Lần chạy gần nhất: 17/09/2026. **550 ca kiểm thử, tất cả đạt**, thời gian chạy khoảng 4 giây.
+Lần chạy gần nhất: 21/09/2026. **562 ca kiểm thử backend và 5 ca frontend, tất cả đạt**, thời gian chạy khoảng 5 giây.
 
 ```bash
 cd backend
@@ -56,11 +56,14 @@ bản giả lập, nên chạy được cả khi hết hạn mức gọi mô hì
 | `test_embedding_cache` | 10 | Bộ nhớ đệm vector nhúng, tiết kiệm hạn mức gọi mô hình | Đạt |
 | `test_intent_classifier` | 10 | Phân loại ý định câu hỏi | Đạt |
 | `test_retriever_selection` | 9 | Chọn đoạn đem vào ngữ cảnh: sàn tuyệt đối và dải tương đối | Đạt |
-| **Tổng** | **550** | | **Đạt** |
+| `test_journey_profile` | 12 | Nối hội thoại với hồ sơ ứng viên: trích xuất theo quy tắc, ghi nguồn `chat`, không đè thông tin đã xác nhận | Đạt |
+| **Tổng** | **562** | | **Đạt** |
 
 **285 ca cho danh mục đơn hàng và bộ đối chiếu**, **101 ca** cho đọc CV, đăng ký sơ bộ, hàng đợi
-và điểm nhân viên, **164 ca** còn lại là phần nền có sẵn và phần của nhóm phát triển chatbot.
-Giữ cho nhóm cuối luôn đạt là điều kiện để hai phần cùng tồn tại trên một mã nguồn.
+và điểm nhân viên, **176 ca** còn lại cho phần hội thoại, truy xuất tri thức và nền hệ thống.
+
+Ngoài ra website có **5 ca** chạy bằng `node --test` cho phần mã phiên dùng chung giữa khung
+chat và luồng hồ sơ: `cd frontend && npm test`.
 
 Bộ đối chiếu chiếm phần lớn số ca không phải ngẫu nhiên. Nó là thứ quyết định ứng viên nào được
 giới thiệu đơn nào, và vì nó là Python thuần — không gọi mô hình ngôn ngữ, không đọc đồng hồ,
@@ -237,7 +240,7 @@ Lần chạy gần nhất: 18 đơn đã xét, 9 đạt, đơn đứng đầu 10
 
 ## 3. Chín lỗi thật do kiểm thử phát hiện
 
-Phần này đáng chú ý hơn con số 550, vì nó cho thấy bộ kiểm thử có tác dụng thật.
+Phần này đáng chú ý hơn con số 562, vì nó cho thấy bộ kiểm thử có tác dụng thật.
 
 | Lỗi | Nếu lọt ra thì sao | Ca chặn |
 |---|---|---|
@@ -331,7 +334,7 @@ ra điều gì vừa hỏng, không phải mở mã nguồn ra đọc mới bi�
 
 ## 5. Những phần chưa có kiểm thử tự động
 
-Nói rõ để không hiểu nhầm con số 550 là đã phủ hết hệ thống.
+Nói rõ để không hiểu nhầm con số 562 là đã phủ hết hệ thống.
 
 | Phần | Hiện trạng | Dự kiến |
 |---|---|---|
@@ -340,7 +343,7 @@ Nói rõ để không hiểu nhầm con số 550 là đã phủ hết hệ thố
 | Chatbot trả lời có căn cứ | Có bộ nghiệm thu `scripts/nghiem_thu_chatbot.py` trên bộ câu hỏi chuẩn | Bổ sung câu hỏi khi kho tri thức dày thêm |
 | Đăng ký sơ bộ và phiếu tóm tắt | Đã có `test_registrations.py` | — |
 | Hàng đợi và điểm nhân viên | Đã có `test_handover.py` và `test_employee_scores.py`, gồm ca hai người cùng nhận một hồ sơ | — |
-| Đóng gói Docker | Đã dựng và chạy thử cả sáu dịch vụ ngày 17/09: website, quản trị và backend lên qua nginx, nạp được 19 đơn mẫu, 550 ca kiểm thử chạy trong container đều đạt | Chạy lại trước khi bàn giao |
+| Đóng gói Docker | Đã dựng và chạy thử cả sáu dịch vụ ngày 17/09: website, quản trị và backend lên qua nginx, nạp được 19 đơn mẫu, toàn bộ ca kiểm thử chạy trong container đều đạt | Chạy lại trước khi bàn giao |
 | Chạy tải | Chưa làm | Ngoài phạm vi |
 
 Sáu file CV mẫu đã sẵn sàng, gồm bốn định dạng khác nhau và một bản scan không có lớp chữ.

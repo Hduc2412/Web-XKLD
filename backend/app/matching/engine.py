@@ -301,6 +301,17 @@ def format_years(value: float) -> str:
     return f"{value:.1f}".replace(".", ",")
 
 
+def format_date(value: date) -> str:
+    """Ngày viết theo lối người Việt đọc, không phải lối máy lưu.
+
+    Thẻ đơn hàng trên website in `31/10/2026`. Bảng tiêu chí trước đây in
+    `2026-10-31` cho cùng cái ngày ấy, và hai thứ nằm cạnh nhau trên một màn
+    hình. Người đọc phải dừng lại kiểm xem có phải cùng một ngày không — đúng
+    kiểu nghi ngờ mà một bảng đối chiếu không nên gây ra.
+    """
+    return value.strftime("%d/%m/%Y")
+
+
 def format_thousand(value: int) -> str:
     return f"{value:,}".replace(",", ".")
 
@@ -349,7 +360,7 @@ def evaluate_hard(
     try:
         deadline = date.fromisoformat(str(deadline_raw))
         deadline_ok = deadline >= as_of
-        deadline_text = f"hạn nộp {deadline.isoformat()}"
+        deadline_text = f"hạn nộp {format_date(deadline)}"
     except (TypeError, ValueError):
         deadline_ok = False
         deadline_text = "hạn nộp không hợp lệ"
@@ -358,7 +369,7 @@ def evaluate_hard(
             key="deadline",
             label="Hạn nộp hồ sơ",
             requirement_text=deadline_text,
-            candidate_text=f"hôm nay {as_of.isoformat()}",
+            candidate_text=f"hôm nay {format_date(as_of)}",
             result=DAT if deadline_ok else KHONG_DAT,
         )
     )

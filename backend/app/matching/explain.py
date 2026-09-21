@@ -17,6 +17,18 @@ from app.matching import catalog
 from app.matching.engine import CriterionRow, MatchItem, MatchResult, SoftRow
 
 
+# Hai tiêu chí này nói về **đơn hàng**, không phải về ứng viên: đơn còn tuyển
+# không, còn hạn không. Chúng vẫn phải có trong bảng tiêu chí — đó là bằng chứng
+# bộ lọc đã xét chúng. Nhưng đem vào câu "hồ sơ đạt các điều kiện bắt buộc" thì
+# thành ra khen ứng viên vì đơn chưa hết hạn.
+ORDER_LEVEL_KEYS = frozenset({"status", "deadline"})
+
+# Luật mềm chấm điểm giữa cho trường chưa biết, để người khai thiếu không bị tụt
+# hạng oan. Nhưng điểm ấy **không phải một lý do**: viết "xếp hạng 1 nhờ chi phí
+# chưa rõ khả năng" là lấy cái chưa biết ra làm thành tích, và người đọc sẽ nghĩ
+# hệ thống đang bịa.
+NON_REASONS = frozenset({"unknown"})
+
 HARD_TAG = "[cứng]"
 SOFT_TAG = "[mềm]"
 TAG_WIDTH = 6
@@ -84,12 +96,18 @@ def render_template_text(item: MatchItem) -> str:
         passed = [
             f"{row.requirement_text} – {row.candidate_text}"
             for row in item.hard_rows
-            if row.result == "DAT" and "không" not in row.requirement_text[:7]
+            if row.result == "DAT"
+            and row.key not in ORDER_LEVEL_KEYS
+            and "không" not in row.requirement_text[:7]
         ][:3]
         if passed:
             sentences.append(f"Hồ sơ đạt các điều kiện bắt buộc: {', '.join(passed)}.")
 
-        scoring = [row for row in item.soft_rows if row.points > 0][:2]
+        scoring = [
+            row
+            for row in item.soft_rows
+            if row.points > 0 and row.outcome not in NON_REASONS
+        ][:2]
         if scoring:
             reasons = ", ".join(
                 f"{row.label.lower()} {row.candidate_text}" for row in scoring
