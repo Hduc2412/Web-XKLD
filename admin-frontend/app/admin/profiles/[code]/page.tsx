@@ -256,6 +256,27 @@ export default function CandidateProfileDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-semibold text-slate-700">Hồ sơ tư vấn từ hội thoại</h3>
+            <p className="my-3 text-xs text-slate-500">Các phát biểu gần đây được giữ nguyên văn, chưa thay thế thông tin khách đã xác nhận. Nguyện vọng có cấu trúc nằm trong phần bên dưới.</p>
+            {(profile.consultation_profile?.conflicts || []).map((item, index) => (
+              <p key={`conflict-${index}`} className="mb-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+                Cần kiểm tra {FIELD_LABELS[item.field] || item.field}: {String(item.previous)} / {String(item.suggested)}. Khách nói: “{item.evidence}”
+              </p>
+            ))}
+            {(profile.consultation_profile?.recent_messages || []).length === 0 ? (
+              <p className="text-sm text-slate-400">Chưa có hội thoại được liên kết với hồ sơ này. Hội thoại cũ ở phiên khác không tự động ghép vào.</p>
+            ) : (
+              <ol className="space-y-3">
+                {profile.consultation_profile?.recent_messages?.map((message, index) => (
+                  <li key={index} className="border-l-2 border-sky-200 pl-3 text-sm text-slate-700">
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    <time className="text-xs text-slate-400">{new Date(message.recorded_at).toLocaleString("vi-VN")}</time>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
           {editing && meta ? (
             <ProfileEditForm
               profile={profile}

@@ -125,7 +125,7 @@ def merge_section(
             # trị mới thắng, vì đó là người dùng tự sửa lại chính mình.
             if incoming_priority < current_priority:
                 continue
-            if current.get("value") == value:
+            if current.get("value") == value and incoming_priority == current_priority:
                 continue
 
         merged[key] = cell(value, source, (evidence or {}).get(key))
@@ -172,7 +172,18 @@ def decorate(profile: dict[str, Any]) -> dict[str, Any]:
         ),
     }
     profile["missing_required"] = missing_required(profile)
+    profile["consultation_profile"] = consultation_view(profile)
     return profile
+
+
+def consultation_view(profile: dict[str, Any]) -> dict[str, Any]:
+    """Logical profile embedded in the same aggregate, no dual-write drift."""
+    return {
+        **(profile.get("consultation") or {}),
+        "candidate_code": profile.get("code"),
+        "version": profile.get("version", 1),
+        "preferences": profile.get("preferences") or {},
+    }
 
 
 def public_view(profile: dict[str, Any]) -> dict[str, Any]:
@@ -187,6 +198,7 @@ def history_entry(profile: dict[str, Any], changed_by: str, note: str) -> dict[s
         "status": profile.get("status"),
         "fields": profile.get("fields", {}),
         "preferences": profile.get("preferences", {}),
+        "consultation": profile.get("consultation", {}),
         "changed_at": now(),
         "changed_by": changed_by,
         "note": note,
@@ -262,6 +274,7 @@ async def apply_changes(
     history: dict[str, Any],
     status: str | None = None,
     confirmed_at: Any = None,
+    consultation: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     """Ghi bản mới kèm khóa theo số phiên bản.
 
@@ -277,6 +290,10 @@ async def apply_changes(
     }
     if status:
         changes["status"] = status
+        if status == STATUS_EXTRACTED:
+            changes["confirmed_at"] = None
+    if consultation is not None:
+        changes["consultation"] = consultation
     if confirmed_at is not None:
         changes["confirmed_at"] = confirmed_at
 

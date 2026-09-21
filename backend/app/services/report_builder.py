@@ -14,6 +14,7 @@ nhanh trên màn hình, dán được vào tin nhắn nội bộ, và in ra gi�
 from typing import Any
 
 from app.matching import catalog
+from app.db.candidate_profiles import consultation_view
 
 # Thứ tự các trường trong phiếu. Xếp theo trình tự nhân viên hỏi khi gọi điện,
 # không phải theo thứ tự bảng chữ cái.
@@ -57,6 +58,7 @@ def build(
     """Bản chụp đầy đủ của phiếu: vừa phần chữ để đọc, vừa dữ liệu thô để tra."""
     return {
         "candidate": _snapshot(profile),
+        "consultation_profile": consultation_view(profile),
         "job_order": {
             "code": order_item.get("code"),
             "title": order_item.get("title"),
@@ -121,6 +123,14 @@ def render_text(
     ]
 
     lines: list[str] = ["PHIẾU TÓM TẮT TƯ VẤN"]
+    context = consultation_view(profile)
+    sections.append(("HỘI THOẠI GẦN ĐÂY — CHƯA PHẢI THÔNG TIN ĐÃ XÁC NHẬN", [
+        f"   - {item['content']}" for item in context.get("recent_messages", [])
+    ]))
+    sections.append(("THÔNG TIN MÂU THUẪN CẦN KIỂM TRA", [
+        f"   - {item['field']}: {item['previous']} / {item['suggested']}"
+        for item in context.get("conflicts", [])
+    ]))
     number = 0
     for title, body in sections:
         if not body:
@@ -130,7 +140,7 @@ def render_text(
 
     lines += [
         "",
-        "Phiếu do hệ thống lập từ thông tin ứng viên đã xác nhận.",
+        "Phiếu lập từ dữ liệu đã lưu; nguồn và thông tin chưa xác nhận được ghi riêng.",
         "Mọi con số trong phiếu cần được kiểm chứng lại khi gọi điện.",
     ]
     return "\n".join(lines)

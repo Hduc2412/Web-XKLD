@@ -224,8 +224,10 @@ export default function ConsultationFlow() {
     };
 
     try {
-      let saved = profile
-        ? await updateProfile(sessionId, fields, preferences, profile.version)
+      // Chat may have created a draft after this form was opened.
+      const currentProfile = profile ?? await fetchProfile(sessionId);
+      let saved = currentProfile
+        ? await updateProfile(sessionId, fields, preferences, currentProfile.version)
         : await createProfile(sessionId, fields, preferences);
       if (saved.status !== "confirmed") {
         saved = await confirmProfile(sessionId);

@@ -197,6 +197,10 @@ async def _apply(
     expected_version: int | None,
     confirm: bool = False,
 ) -> tuple[dict[str, Any], list[str]]:
+    if confirm:
+        # Confirming a machine draft promotes its values, not just its status.
+        fields = {key: item["value"] for key, item in profile.get("fields", {}).items()}
+        preferences = {key: item["value"] for key, item in profile.get("preferences", {}).items()}
     merged_fields, changed_fields = store.merge_section(
         profile.get("fields"), fields, source=source, allowed=store.FIELD_KEYS
     )

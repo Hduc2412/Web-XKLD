@@ -4,14 +4,11 @@
  * Khác `publicApi.ts` ở chỗ file đó chạy trên máy chủ để dựng sẵn trang đơn hàng,
  * còn file này chạy trong trình duyệt và có trạng thái theo từng người dùng.
  *
- * **Mã phiên là của riêng luồng này.** Không đọc ké phiên của khung chat: hai phần
- * do hai người phát triển song song, đọc ké là bản demo gãy mỗi lần bên kia sửa
- * widget. Mã phiên sinh một lần rồi nằm lại trong trình duyệt, nên ứng viên đóng
- * tab mở lại vẫn thấy hồ sơ mình vừa khai.
+ * CV và chat dùng cùng mã hành trình trong journeySession.
  */
 import { BACKEND_PUBLIC_URL } from "./publicApi";
 
-const SESSION_KEY = "xkld-candidate-session";
+export { getSessionId, resetSession } from "./journeySession";
 
 /** Một ô dữ liệu trong hồ sơ. Giá trị nào cũng mang theo nguồn của nó. */
 export interface ProfileCell<T = unknown> {
@@ -179,24 +176,6 @@ export class ApiError extends Error {
     this.status = status;
     this.missing = missing;
   }
-}
-
-/** Mã phiên của trình duyệt này, sinh lần đầu rồi dùng lại mãi. */
-export function getSessionId(): string {
-  if (typeof window === "undefined") return "";
-  let value = window.localStorage.getItem(SESSION_KEY);
-  if (!value) {
-    value = crypto.randomUUID().replace(/-/g, "").slice(0, 32);
-    window.localStorage.setItem(SESSION_KEY, value);
-  }
-  return value;
-}
-
-/** Quên hồ sơ cũ và bắt đầu lại từ đầu. */
-export function resetSession(): string {
-  if (typeof window === "undefined") return "";
-  window.localStorage.removeItem(SESSION_KEY);
-  return getSessionId();
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {

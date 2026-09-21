@@ -1,6 +1,9 @@
 
 # Điều phối toàn bộ luồng xử lý từ câu hỏi đến câu trả lời.
 from fastapi.concurrency import run_in_threadpool
+import asyncio
+import logging
+from app.services.journey_profile import capture as capture_profile
 
 from app.rag.retriever import search
 from app.rag.prompt_builder import build_context, build_prompt
@@ -151,3 +154,9 @@ async def _save_exchange(
     await save_message(
         session_id, "assistant", answer, intent, is_fallback=is_fallback
     )
+    try:
+        await asyncio.wait_for(capture_profile(session_id, user_query, intent), timeout=3)
+    except Exception:
+        # The exchange is durable already. Do not fail an otherwise valid answer
+        # or log the customer's personal message when enrichment is unavailable.
+        logging.getLogger(__name__).warning("Chat profile intake unavailable", exc_info=True)

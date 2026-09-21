@@ -277,6 +277,10 @@ export interface ProfileCell<T = unknown> {
 }
 
 export interface CandidateProfile {
+  consultation_profile?: {
+    recent_messages?: { content: string; intent: string; recorded_at: string }[];
+    conflicts?: { field: string; previous: unknown; suggested: unknown; evidence: string }[];
+  };
   code: string;
   session_id: string;
   status: string;
